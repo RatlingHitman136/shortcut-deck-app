@@ -2,12 +2,10 @@ package com.example.blankapptest
 
 import android.os.Handler
 import android.os.Looper
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.LinkedList
+import java.util.*
 import java.util.concurrent.Executors
 
 
@@ -50,7 +48,10 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
     {
 //        val tmpMessage = String(buffer,0,finalBytes)
 //        handleMessageOuterFunction(tmpMessage)
-
+        val fos = FileOutputStream(R.string.test_img_sending_capabilities_path_to_save_img.toString())
+        val bos = BufferedOutputStream(fos)
+        bos.write(buffer,0, finalBytes)
+        bos.flush()
     }
 
     private fun startExchangingMessages() {
