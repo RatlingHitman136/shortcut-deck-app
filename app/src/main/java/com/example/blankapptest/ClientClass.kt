@@ -24,6 +24,7 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
     private fun write(byteArray: ByteArray){
         try {
             outputStream.write(byteArray)
+            outputStream.flush()
         }catch (ex: IOException){
             handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
@@ -72,7 +73,6 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
             }
         })
     }
-
     private fun readingProcess(handler: Handler) {
         val buffer = ByteArray(1024)
         var byte:Int
