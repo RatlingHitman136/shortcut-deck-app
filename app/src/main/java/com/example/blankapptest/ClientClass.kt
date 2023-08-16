@@ -2,11 +2,9 @@ package com.example.blankapptest
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.Executors

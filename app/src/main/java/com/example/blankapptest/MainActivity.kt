@@ -1,12 +1,12 @@
 package com.example.blankapptest
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import kotlin.concurrent.thread
 
 class IdleActivity : AppCompatActivity() {
 
@@ -43,6 +43,7 @@ class IdleActivity : AppCompatActivity() {
         client.sendMessage(msg)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun handleRecievedMessage(message:String)
     {
         Log.i("client class", message)
