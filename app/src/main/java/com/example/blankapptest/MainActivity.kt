@@ -40,7 +40,7 @@ class IdleActivity : AppCompatActivity() {
 
     private fun send(msg: String)
     {
-        client.sendMessage(msg)
+        client.sendMessage(msg + "\n")
     }
 
     @SuppressLint("SetTextI18n")

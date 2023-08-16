@@ -7,23 +7,25 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.LinkedList
 import java.util.concurrent.Executors
 
 
 class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit): Thread() {
 
-    var hostAddress: String? = hostAddress
-    var handleMessageOuterFunction = handleMessage
-    lateinit var inputStream: InputStream
-    lateinit var outputStream: OutputStream
-    lateinit var socket: Socket
+    private var hostAddress: String? = hostAddress
+    private var handleMessageOuterFunction = handleMessage
+    private lateinit var inputStream: InputStream
+    private lateinit var outputStream: OutputStream
+    private lateinit var socket: Socket
 
+    private var sendingQueue = LinkedList<ByteArray>()
 
     private fun write(byteArray: ByteArray){
         try {
             outputStream.write(byteArray)
         }catch (ex: IOException){
-            handleMessageOuterFunction("!exception! " + ex.message)
+            handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
         }
     }
@@ -35,9 +37,10 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
             inputStream = socket.getInputStream()
             outputStream = socket.getOutputStream()
 
-            //start reading messages if connection is successful
-            startReadingMessages()
+            //start reading and wending messages if connection is successful
+            startExchangingMessages()
         }catch (ex:IOException){
+            handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
         }
     }
@@ -48,50 +51,69 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
         handleMessageOuterFunction(tmpMessage)
     }
 
-    private fun startReadingMessages()
-    {
-        val executor = Executors.newSingleThreadExecutor()
+    private fun startExchangingMessages() {
+        val executorRead = Executors.newSingleThreadExecutor()
+        val executorWrite = Executors.newSingleThreadExecutor()
         val handler = Handler(Looper.getMainLooper())
 
-        //start reading thread
-        executor.execute(kotlinx.coroutines.Runnable {
+        executorRead.execute(kotlinx.coroutines.Runnable //start reading thread
+        {
             kotlin.run {
-                val buffer =ByteArray(1024)
-                var byte:Int
-                while (true){
-                    try{
-                        //reading proccess
-                        byte = inputStream.read(buffer)
-                        if(byte>0){
-                            val finalBytes = byte
-                            handler.post {
-                                kotlin.run {
-                                    handleMessage(buffer, finalBytes)
-                                }
-                            }
-                        }
-                    }catch (ex:IOException){
-                        handleMessageOuterFunction("!exception! "+ ex.message)
-                        ex.printStackTrace()
-                    }
-                }
+                handleMessageOuterFunction("started reading thread")
+                readingProcess(handler)
+            }
+        })
+
+        executorWrite.execute(kotlinx.coroutines.Runnable //start writing thread
+        {
+            kotlin.run {
+                handleMessageOuterFunction("started writing thread")
+                writingProcess()
             }
         })
     }
 
-    fun sendMessage(msg: String)
-    {
-        val executor = Executors.newSingleThreadExecutor()
-        executor.execute(kotlinx.coroutines.Runnable {
-            kotlin.run {
+    private fun readingProcess(handler: Handler) {
+        val buffer = ByteArray(1024)
+        var byte:Int
+        while (true){
+            try{
+                byte = inputStream.read(buffer)
+                if(byte>0){
+                    val finalBytes = byte
+                    handler.post {
+                        kotlin.run {
+                            handleMessage(buffer, finalBytes)
+                        }
+                    }
+                }
+            }catch (ex:IOException){
+                handleMessageOuterFunction(ex.message.toString())
+                ex.printStackTrace()
+            }
+        }
+    }
+
+    private fun writingProcess() {
+        while (true) {
+            if(sendingQueue.isNotEmpty()) {
                 try {
-                    handleMessageOuterFunction("found Item to send: ${msg}")
-                    write((msg + "\n").encodeToByteArray())
-                }catch (ex:IOException){
-                    handleMessageOuterFunction("!exception! " + ex.message)
+                    val data:ByteArray = sendingQueue.pop()
+                    handleMessageOuterFunction("found Item to send")
+                    write(data)
+                } catch (ex: IOException) {
+                    handleMessageOuterFunction(ex.message.toString())
                     ex.printStackTrace()
                 }
             }
-        })
+        }
+    }
+
+
+    fun sendMessage(msg: String)
+    {
+        val dataToSend:ByteArray = msg.encodeToByteArray()
+        sendingQueue.add(dataToSend)
+        handleMessageOuterFunction("added message to queue")
     }
 }
