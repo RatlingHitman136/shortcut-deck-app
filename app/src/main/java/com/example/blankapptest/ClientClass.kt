@@ -48,8 +48,9 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
 
     private fun handleMessage(buffer:ByteArray, finalBytes:Int)
     {
-        val tmpMessage = String(buffer,0,finalBytes)
-        handleMessageOuterFunction(tmpMessage)
+//        val tmpMessage = String(buffer,0,finalBytes)
+//        handleMessageOuterFunction(tmpMessage)
+
     }
 
     private fun startExchangingMessages() {
