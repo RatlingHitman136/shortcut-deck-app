@@ -99,7 +99,6 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
             if(sendingQueue.isNotEmpty()) {
                 try {
                     val data:ByteArray = sendingQueue.pop()
-                    handleMessageOuterFunction("found Item to send")
                     write(data)
                 } catch (ex: IOException) {
                     handleMessageOuterFunction(ex.message.toString())
@@ -114,6 +113,5 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
     {
         val dataToSend:ByteArray = msg.encodeToByteArray()
         sendingQueue.add(dataToSend)
-        handleMessageOuterFunction("added message to queue")
     }
 }

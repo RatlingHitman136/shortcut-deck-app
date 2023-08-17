@@ -34,8 +34,8 @@ class ButtonsGridAdapter(
             view = inflater.inflate(R.layout.button_layout,null)
         else
             view = convertView
-        //val imgButton = convertView.findViewById<ImageButton>(R.id.ibShortCut)
-        //imgButton.setOnClickListener { buttonView: View -> onButtonPressed(buttonView, shortcutTagsArray[i]) }
+        val imgButton = view.findViewById<ImageButton>(R.id.ibShortCut)
+        imgButton.setOnClickListener { buttonView: View -> onButtonPressed(buttonView, shortcutTagsArray[i]) }
         return view
     }
 

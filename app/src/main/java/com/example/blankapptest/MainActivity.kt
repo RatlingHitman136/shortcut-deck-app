@@ -26,7 +26,11 @@ class IdleActivity : AppCompatActivity() {
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
         gvButtonsHolder = findViewById<GridView>(R.id.gvButtonHolder)
 
-        val buttonsGridAdapter = ButtonsGridAdapter(this,mutableListOf("1","2","3","1","2","3","1","2", "3","1","2", "3")) {view:View, tag:String -> buttonWithTagPressed(view, tag)}
+        val buttonsGridAdapter = ButtonsGridAdapter(this,mutableListOf("1","2","3","4",
+                                                                              "5","6","7","8",
+                                                                              "9","10","11", "12",
+                                                                              "13","14","15", "16"))
+                                                                              {view:View, tag:String -> buttonWithTagPressed(view, tag)}
         gvButtonsHolder.adapter = buttonsGridAdapter
 
         btnSend.setOnClickListener { _ ->
@@ -40,7 +44,10 @@ class IdleActivity : AppCompatActivity() {
     }
 
     private fun buttonWithTagPressed(view: View, tag:String)
-    {}
+    {
+        //handleRecievedMessage("button ${tag} is pressed")
+        send("button ${tag} is pressed")
+    }
 
     private fun connect()
     {

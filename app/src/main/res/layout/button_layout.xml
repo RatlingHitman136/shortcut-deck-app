@@ -7,10 +7,6 @@
     <ImageButton
             android:layout_width="@dimen/button_size"
             android:layout_height="@dimen/button_size"
-            android:layout_marginEnd="@dimen/buttons_margin"
-            android:layout_marginBottom="@dimen/buttons_margin"
-            android:layout_marginStart="@dimen/buttons_margin"
-            android:layout_marginTop="@dimen/buttons_margin"
             app:srcCompat="@android:drawable/ic_media_play"
             android:id="@+id/ibShortCut"
             app:layout_constraintStart_toStartOf="parent"

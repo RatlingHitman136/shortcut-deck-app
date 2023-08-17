@@ -31,23 +31,24 @@
             android:autofillHints="Ip Address" android:layout_marginTop="8dp"
             app:layout_constraintHorizontal_bias="1.0"/>
     <TextView
-            android:textSize="12sp"
+            android:textSize="8sp"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="0dp"
             android:id="@+id/tvMessageBox"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edMessageToSend"/>
+            app:layout_constraintTop_toBottomOf="@+id/edMessageToSend"
+            app:layout_constraintBottom_toTopOf="@+id/gvButtonHolder"/>
     <GridView
             android:id="@+id/gvButtonHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvMessageBox"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:numColumns="4"
-    android:horizontalSpacing="4dp"/>
+            android:horizontalSpacing="@dimen/default_gap"
+            android:verticalSpacing="@dimen/default_gap"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
