@@ -24,10 +24,10 @@ class IdleActivity : AppCompatActivity() {
         btnSend = findViewById<Button>(R.id.btnSend)
         edMessageToSend = findViewById<EditText>(R.id.edMessageToSend)
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
-        //gvButtonsHolder = findViewById<GridView>(R.id.gvButtonHolder)
+        gvButtonsHolder = findViewById<GridView>(R.id.gvButtonHolder)
 
-        //val buttonsGridAdapter = ButtonsGridAdapter(mutableListOf("1","2","3","1","2","3","1","2")) {view:View, tag:String -> buttonWithTagPressed(view, tag)}
-        //gvButtonsHolder.adapter = buttonsGridAdapter
+        val buttonsGridAdapter = ButtonsGridAdapter(this,mutableListOf("1","2","3","1","2","3","1","2", "3","1","2", "3")) {view:View, tag:String -> buttonWithTagPressed(view, tag)}
+        gvButtonsHolder.adapter = buttonsGridAdapter
 
         btnSend.setOnClickListener { _ ->
             run {

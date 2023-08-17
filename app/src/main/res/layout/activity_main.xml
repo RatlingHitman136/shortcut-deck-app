@@ -36,7 +36,18 @@
             android:layout_height="100dp"
             android:id="@+id/tvMessageBox"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/edMessageToSend"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edMessageToSend"/>
+    <GridView
+            android:id="@+id/gvButtonHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvMessageBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:numColumns="4"
+    android:horizontalSpacing="4dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
