@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridView
 import android.widget.TextView
 
 class IdleActivity : AppCompatActivity() {
@@ -14,6 +16,7 @@ class IdleActivity : AppCompatActivity() {
     private lateinit var edMessageToSend:EditText
     private lateinit var tvMessageBox:TextView
     private lateinit var client:ClientClass
+    private lateinit var gvButtonsHolder:GridView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +24,10 @@ class IdleActivity : AppCompatActivity() {
         btnSend = findViewById<Button>(R.id.btnSend)
         edMessageToSend = findViewById<EditText>(R.id.edMessageToSend)
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
+        //gvButtonsHolder = findViewById<GridView>(R.id.gvButtonHolder)
+
+        //val buttonsGridAdapter = ButtonsGridAdapter(mutableListOf("1","2","3","1","2","3","1","2")) {view:View, tag:String -> buttonWithTagPressed(view, tag)}
+        //gvButtonsHolder.adapter = buttonsGridAdapter
 
         btnSend.setOnClickListener { _ ->
             run {
@@ -31,6 +38,9 @@ class IdleActivity : AppCompatActivity() {
 
         connect()
     }
+
+    private fun buttonWithTagPressed(view: View, tag:String)
+    {}
 
     private fun connect()
     {

@@ -18,8 +18,9 @@
             android:layout_height="60dp"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/edMessageToSend"
+            app:layout_constraintBottom_toTopOf="@id/tvMessageBox"/>
     <EditText
             android:id="@+id/edMessageToSend"
             android:layout_width="0dp"
@@ -27,13 +28,15 @@
             app:layout_constraintEnd_toStartOf="@+id/btnSend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:autofillHints="Ip Address"/>
+            android:autofillHints="Ip Address" android:layout_marginTop="8dp"
+            app:layout_constraintHorizontal_bias="1.0"/>
     <TextView
-            android:textSize="20sp"
+            android:textSize="12sp"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="100dp"
             android:id="@+id/tvMessageBox"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/edMessageToSend"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
