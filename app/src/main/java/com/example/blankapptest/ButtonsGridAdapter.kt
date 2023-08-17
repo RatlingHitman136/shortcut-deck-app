@@ -10,18 +10,17 @@ import android.widget.ImageButton
 
 class ButtonsGridAdapter(
     context:Context,
-    private val shortcutTagsArray: MutableList<String>,
-    private val onButtonPressed: (view:View, tag:String) -> Unit
+    private val shortCutList: MutableList<ShortCutBase>
 ) : BaseAdapter(){
 
     val inflater = LayoutInflater.from(context)
 
     override fun getCount(): Int {
-        return shortcutTagsArray.count()
+        return shortCutList.count()
     }
 
     override fun getItem(i: Int): Any {
-        return shortcutTagsArray[i]
+        return shortCutList[i]
     }
 
     override fun getItemId(i: Int): Long {
@@ -34,8 +33,8 @@ class ButtonsGridAdapter(
             view = inflater.inflate(R.layout.button_layout,null)
         else
             view = convertView
-        val imgButton = view.findViewById<ImageButton>(R.id.ibShortCut)
-        imgButton.setOnClickListener { buttonView: View -> onButtonPressed(buttonView, shortcutTagsArray[i]) }
+
+        shortCutList[i].initShortCutViewGroup(view)
         return view
     }
 
