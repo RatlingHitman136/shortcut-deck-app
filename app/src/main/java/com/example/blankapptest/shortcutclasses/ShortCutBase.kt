@@ -1,4 +1,4 @@
-package com.example.blankapptest
+package com.example.blankapptest.shortcutclasses
 
 import android.view.View
 
