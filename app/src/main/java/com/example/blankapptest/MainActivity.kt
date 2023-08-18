@@ -12,8 +12,6 @@ import android.widget.TextView
 
 class IdleActivity : AppCompatActivity() {
 
-    private lateinit var btnSend:Button
-    private lateinit var edMessageToSend:EditText
     private lateinit var tvMessageBox:TextView
     private lateinit var client:ClientClass
     private lateinit var gvButtonsHolder:GridView
@@ -21,20 +19,11 @@ class IdleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        btnSend = findViewById<Button>(R.id.btnSend)
-        edMessageToSend = findViewById<EditText>(R.id.edMessageToSend)
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
         gvButtonsHolder = findViewById<GridView>(R.id.gvButtonHolder)
 
         val buttonsGridAdapter = ButtonsGridAdapter(this,mutableListOf())
         gvButtonsHolder.adapter = buttonsGridAdapter
-
-        btnSend.setOnClickListener { _ ->
-            run {
-                send(edMessageToSend.text.toString())
-                edMessageToSend.text.clear()
-            }
-        }
 
         connect()
     }
