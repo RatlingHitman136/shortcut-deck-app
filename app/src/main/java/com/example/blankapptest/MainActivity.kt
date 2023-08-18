@@ -2,19 +2,24 @@ package com.example.blankapptest
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.blankapptest.networking.ClientClass
+import com.example.blankapptest.networking.LocalNetworkScanner
 import com.example.blankapptest.shortcutclasses.ShortCutBase
 import com.example.blankapptest.shortcutclasses.ShortCutButton
+import com.example.blankapptest.shortcutclasses.ShortCutSeekBar
+
 
 class IdleActivity : AppCompatActivity() {
 
     private lateinit var tvMessageBox:TextView
-    private lateinit var client:ClientClass
+    private lateinit var client: ClientClass
     private lateinit var gvButtonsHolder:RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,20 +27,26 @@ class IdleActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
         gvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
-        val numberOfColumns:Int = 3
-        val manager = GridLayoutManager(this,numberOfColumns)
-
-        manager.spanSizeLookup = object : SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return 3 - position % 3
-            }
-        }
+        val numberOfColumns: Int = 4
+        val manager = CustomStaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL)
+        manager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
 
         gvButtonsHolder.layoutManager = manager
-        val buttonsGridAdapter = ButtonsGridAdapter(this,createTestButtons())
+        //gvButtonsHolder.addItemDecoration(GridSpanDecoration(R.dimen.buttons_margin))
+        val buttonsGridAdapter = ButtonsGridAdapter(this, createTestButtons())
         gvButtonsHolder.adapter = buttonsGridAdapter
 
-        connect()
+        val localNetworkScanner = LocalNetworkScanner(
+            this,
+            8888,
+            "a1b2c3",
+            "3c2b1a",
+            "test device",
+            200,
+        ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
+        localNetworkScanner.start()
+
+        //connect()
     }
 
     private fun createTestButtons() : MutableList<ShortCutBase> {
@@ -43,7 +54,7 @@ class IdleActivity : AppCompatActivity() {
             ShortCutButton("1") { s: String -> send(s) },
             ShortCutButton("2") { s: String -> send(s) },
             ShortCutButton("3") { s: String -> send(s) },
-            ShortCutButton("4") { s: String -> send(s) },
+            ShortCutSeekBar("4") { s: String -> send(s) },
             ShortCutButton("5") { s: String -> send(s) },
             ShortCutButton("6") { s: String -> send(s) },
             ShortCutButton("7") { s: String -> send(s) },
@@ -55,8 +66,12 @@ class IdleActivity : AppCompatActivity() {
             ShortCutButton("13") { s: String -> send(s) },
             ShortCutButton("14") { s: String -> send(s) },
             ShortCutButton("15") { s: String -> send(s) },
-            ShortCutButton("16") { s: String -> send(s) }
+            ShortCutButton("16") { s: String -> send(s) },
+            ShortCutButton("17") { s: String -> send(s) }
         )
+    }
+    private fun handleFoundPossibleDeviceConnection(device:LocalNetworkScanner.DeviceData) {
+
     }
 
 

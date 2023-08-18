@@ -1,4 +1,4 @@
-package com.example.blankapptest
+package com.example.blankapptest.networking
 
 import android.os.Handler
 import android.os.Looper
@@ -76,7 +76,7 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
     private fun readingProcess(handler: Handler) {
         val buffer = ByteArray(1024)
         var byte:Int
-        while (true){
+        while (socket.isConnected){
             try{
                 byte = inputStream.read(buffer)
                 if(byte>0){
@@ -95,7 +95,7 @@ class ClientClass(hostAddress: String,  handleMessage: (message:String) -> Unit)
     }
 
     private fun writingProcess() {
-        while (true) {
+        while (socket.isConnected) {
             if(sendingQueue.isNotEmpty()) {
                 try {
                     val data:ByteArray = sendingQueue.pop()

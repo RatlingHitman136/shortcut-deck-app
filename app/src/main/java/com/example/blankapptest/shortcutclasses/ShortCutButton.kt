@@ -13,7 +13,7 @@ class ShortCutButton(
     override fun initShortCutViewGroup(viewHolder: ViewHolder) {
         if (viewHolder is ButtonViewHolder) {
             val buttonViewHolder:ButtonViewHolder = viewHolder as ButtonViewHolder
-            buttonViewHolder.button.setOnClickListener { _ -> sendMessage("shortcut with id = $shortCutId was pressed") } //TODO(change to shorter and parsable message)
+            buttonViewHolder.button.setOnClickListener { _ -> sendMessage("button $shortCutId ") } //TODO(change to shorter and parsable message)
         }
     }
 

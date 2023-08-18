@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.blankapptest.shortcutclasses.ShortCutBase
 import com.example.blankapptest.shortcutclasses.ShortCutButton
+import com.example.blankapptest.shortcutclasses.ShortCutSeekBar
+import java.lang.Exception
 
 
 class ButtonsGridAdapter(
@@ -18,9 +20,27 @@ class ButtonsGridAdapter(
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortCutButton.ButtonViewHolder {
-        val view:View = inflater.inflate(R.layout.button_layout, parent,false)
-        return ShortCutButton.ButtonViewHolder(view)
+    override fun getItemViewType(position: Int): Int {
+            when(shortCutList[position]){
+                is ShortCutButton -> return 1
+                is ShortCutSeekBar -> return 2
+            }
+        throw Exception("wrong type")
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortCutBase.ViewHolder {
+        when(viewType) {
+            1 -> {
+                val view = inflater.inflate(R.layout.button_layout, parent, false)
+                return ShortCutButton.ButtonViewHolder(view)
+            }
+
+            2 -> {
+                val view = inflater.inflate(R.layout.seekbar_layout, parent, false)
+                return ShortCutSeekBar.SeekBarViewHolder(view)
+            }
+        }
+        throw Exception("wrong type")
     }
 
 
