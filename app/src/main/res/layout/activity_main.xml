@@ -11,6 +11,13 @@
         android:paddingEnd="8dp"
         android:paddingBottom="8dp">
 
+    <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/sPossibleDevices"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
     <TextView
             android:textSize="8sp"
             android:layout_width="0dp"
@@ -18,7 +25,8 @@
             android:id="@+id/tvMessageBox"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/rvButtonHolder" app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintBottom_toTopOf="@+id/rvButtonHolder"
+            app:layout_constraintTop_toBottomOf="@+id/sPossibleDevices"/>
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvButtonHolder"
             android:layout_width="wrap_content"
