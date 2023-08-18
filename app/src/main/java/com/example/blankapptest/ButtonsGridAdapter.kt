@@ -5,38 +5,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.blankapptest.shortcutclasses.ShortCutBase
+import com.example.blankapptest.shortcutclasses.ShortCutButton
 
 
 class ButtonsGridAdapter(
     context:Context,
     private val shortCutList: MutableList<ShortCutBase>
-) : BaseAdapter(){
+) : RecyclerView.Adapter<ShortCutBase.ViewHolder>() {
 
-    val inflater = LayoutInflater.from(context)
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
 
-    override fun getCount(): Int {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortCutButton.ButtonViewHolder {
+        val view:View = inflater.inflate(R.layout.button_layout, parent,false)
+        return ShortCutButton.ButtonViewHolder(view)
+    }
+
+
+    override fun getItemCount(): Int {
         return shortCutList.count()
     }
 
-    override fun getItem(i: Int): Any {
-        return shortCutList[i]
+    override fun onBindViewHolder(holder: ShortCutBase.ViewHolder, position: Int) {
+        shortCutList[position].initShortCutViewGroup(holder)
     }
-
-    override fun getItemId(i: Int): Long {
-        return i.toLong()
-    }
-
-    override fun getView(i: Int, convertView: View?, viewGroup: ViewGroup): View {
-        val view:View
-        if(convertView == null)
-            view = inflater.inflate(R.layout.button_layout,null)
-        else
-            view = convertView
-
-        shortCutList[i].initShortCutViewGroup(view)
-        return view
-    }
-
-
 }

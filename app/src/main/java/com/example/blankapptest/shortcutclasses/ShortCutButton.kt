@@ -2,6 +2,7 @@ package com.example.blankapptest.shortcutclasses
 
 import android.view.View
 import android.widget.ImageButton
+import androidx.recyclerview.widget.RecyclerView
 import com.example.blankapptest.R
 
 class ShortCutButton(
@@ -9,10 +10,16 @@ class ShortCutButton(
     sendMessage:(msg:String) -> Unit
     //TODO(img var must be implemented here)
 ): ShortCutBase(shortCutId, sendMessage) {
-    override fun initShortCutViewGroup(view: View)
+    override fun initShortCutViewGroup(viewHolder: ViewHolder) {
+        if (viewHolder is ButtonViewHolder) {
+            val buttonViewHolder:ButtonViewHolder = viewHolder as ButtonViewHolder
+            buttonViewHolder.button.setOnClickListener { _ -> sendMessage("shortcut with id = $shortCutId was pressed") } //TODO(change to shorter and parsable message)
+        }
+    }
+
+    class ButtonViewHolder(itemView: View) : ShortCutBase.ViewHolder(itemView)
     {
-        val btn = view.findViewById<ImageButton>(R.id.ibShortCut)
-        btn.setOnClickListener { _ -> sendMessage("shortcut with id = $shortCutId was pressed") } //TODO(change to shorter and parsable message)
+        val button: ImageButton = itemView.findViewById<ImageButton>(R.id.ibShortCut)
     }
 
 }

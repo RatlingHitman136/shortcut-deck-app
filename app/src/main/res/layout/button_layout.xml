@@ -9,6 +9,8 @@
             android:layout_height="@dimen/button_size"
             app:srcCompat="@android:drawable/ic_media_play"
             android:id="@+id/ibShortCut"
+            android:layout_marginTop="@dimen/default_gap"
+            android:layout_marginStart="@dimen/default_gap"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
