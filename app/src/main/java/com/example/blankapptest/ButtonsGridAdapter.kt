@@ -14,22 +14,22 @@ import java.lang.Exception
 
 
 class ButtonsGridAdapter(
-    context:Context,
-    private val shortCutList: MutableList<ShortCutBase>
+    context:Context
 ) : RecyclerView.Adapter<ShortCutBase.ViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private val shortCutList: MutableList<ShortCutBase> = mutableListOf()
 
     override fun getItemViewType(position: Int): Int {
-            when(shortCutList[position]){
-                is ShortCutButton -> return 1
-                is ShortCutSeekBar -> return 2
-            }
+        when (shortCutList[position]) {
+            is ShortCutButton -> return 1
+            is ShortCutSeekBar -> return 2
+        }
         throw Exception("wrong type")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortCutBase.ViewHolder {
-        when(viewType) {
+        when (viewType) {
             1 -> {
                 val view = inflater.inflate(R.layout.button_layout, parent, false)
                 return ShortCutButton.ButtonViewHolder(view)
@@ -50,5 +50,16 @@ class ButtonsGridAdapter(
 
     override fun onBindViewHolder(holder: ShortCutBase.ViewHolder, position: Int) {
         shortCutList[position].initShortCutViewGroup(holder)
+    }
+
+    fun addShortCut(shortCutBase: ShortCutBase) {
+        shortCutList.add(shortCutBase)
+        notifyItemInserted(shortCutList.count() - 1)
+    }
+
+    fun addShortCut(shortCutCollection: Collection<ShortCutBase>) {
+        shortCutList.addAll(shortCutCollection)
+        for (i in shortCutList.count() - shortCutCollection.count() until shortCutList.count())
+            notifyItemInserted(i)
     }
 }

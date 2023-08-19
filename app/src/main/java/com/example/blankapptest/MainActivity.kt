@@ -2,8 +2,10 @@ package com.example.blankapptest
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -16,25 +18,19 @@ import com.example.blankapptest.shortcutclasses.ShortCutButton
 import com.example.blankapptest.shortcutclasses.ShortCutSeekBar
 
 
-class IdleActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var tvMessageBox:TextView
-    private lateinit var client: ClientClass
+    private var client: ClientClass =  ClientClass { msg: String -> handleRecievedMessage(msg) }
     private lateinit var gvButtonsHolder:RecyclerView
+    private lateinit var buttonsGridAdapter:ButtonsGridAdapter
+    private lateinit var sPossibleDevices: Spinner
+    private lateinit var possibleDevicesDropDownAdapter: PossibleDevicesDropDownAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
-        gvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
-        val numberOfColumns: Int = 4
-        val manager = CustomStaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL)
-        manager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-
-        gvButtonsHolder.layoutManager = manager
-        //gvButtonsHolder.addItemDecoration(GridSpanDecoration(R.dimen.buttons_margin))
-        val buttonsGridAdapter = ButtonsGridAdapter(this, createTestButtons())
-        gvButtonsHolder.adapter = buttonsGridAdapter
+        initAllViews()
 
         val localNetworkScanner = LocalNetworkScanner(
             this,
@@ -47,6 +43,41 @@ class IdleActivity : AppCompatActivity() {
         localNetworkScanner.start()
 
         //connect()
+    }
+
+    private fun getAllViewReferences() {
+        tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
+        gvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
+        sPossibleDevices = findViewById<Spinner>(R.id.sPossibleDevices)
+    }
+
+    private fun initAllViews() {
+        getAllViewReferences()
+
+        //setting up grid manager
+        val numberOfColumns: Int = 4
+        val manager = CustomStaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL)
+        manager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        gvButtonsHolder.layoutManager = manager
+
+        //setting up grid adapter
+        buttonsGridAdapter = ButtonsGridAdapter(this)
+        gvButtonsHolder.adapter = buttonsGridAdapter
+
+        //setting up device adapter
+        possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(this)
+        sPossibleDevices.adapter = possibleDevicesDropDownAdapter
+
+        sPossibleDevices.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                handleSelectedNewDevice(possibleDevicesDropDownAdapter.getItem(position) as LocalNetworkScanner.DeviceData)
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
+                // TODO your code here
+            }
+        }
+
     }
 
     private fun createTestButtons() : MutableList<ShortCutBase> {
@@ -71,19 +102,7 @@ class IdleActivity : AppCompatActivity() {
         )
     }
     private fun handleFoundPossibleDeviceConnection(device:LocalNetworkScanner.DeviceData) {
-
-    }
-
-
-    private fun connect()
-    {
-        client = ClientClass("192.168.178.41") {msg:String -> handleRecievedMessage(msg)}
-        client.start()
-    }
-
-
-    private fun send(msg: String) {
-        client.sendMessage(msg + "\n")
+        possibleDevicesDropDownAdapter.addNewPossibleDevice(device)
     }
 
     @SuppressLint("SetTextI18n")
@@ -93,5 +112,24 @@ class IdleActivity : AppCompatActivity() {
         tvMessageBox.text = "${tvMessageBox.text} \n $message"
     }
 
+    private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
+        connect(deviceData.ipAddress)
+    }
 
+
+    private fun connect(address:String) {
+        if (!client.isAlive) {
+            client.hostAddress = address
+            client.start()
+        } else
+            client.stopAndReconnect(address)
+
+        buttonsGridAdapter.addShortCut(createTestButtons())
+    }
+
+
+    private fun send(msg: String) {
+        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show()
+        client.sendMessage(msg + "\n")
+    }
 }

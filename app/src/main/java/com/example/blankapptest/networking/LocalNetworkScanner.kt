@@ -23,7 +23,8 @@ class LocalNetworkScanner(
 
     private lateinit var prefix: String
 
-    val tagForMessage: String = "scan"
+    private var handler: Handler = Handler(Looper.getMainLooper())
+    private val tagForMessage: String = "scan"
 
     override fun run() {
         val ip = getLocalIp()
@@ -44,7 +45,7 @@ class LocalNetworkScanner(
                         kotlin.run {
                             val deviceData = checkValidityOfConnection(clientSocket)
                             if (deviceData != null)
-                                onPossibleDeviceFound(deviceData)
+                                possibleDeviceFound(deviceData)
                         }
                     })
                     executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
@@ -55,6 +56,16 @@ class LocalNetworkScanner(
             i++
         } while (i < 255)
     }
+
+    private fun possibleDeviceFound(deviceData: DeviceData)
+    {
+        handler.post{
+            kotlin.run {
+                onPossibleDeviceFound(deviceData)
+            }
+        }
+    }
+
 
     private fun checkValidityOfConnection(clientSocket:Socket) : DeviceData? {
         val inputStream = clientSocket.getInputStream()
@@ -75,7 +86,7 @@ class LocalNetworkScanner(
             //if recieved msg is valid as reply to invitation
             if ((recievedMsg.count() == 3) && (recievedMsg[0] == tagForMessage) && (recievedMsg[2] == passwordReceive)) {
                 return DeviceData(
-                    clientSocket.remoteSocketAddress.toString(),
+                    clientSocket.remoteSocketAddress.toString().removePrefix("/"),
                     portToScanFor,
                     recievedMsg[1]
                 )
@@ -97,5 +108,23 @@ class LocalNetworkScanner(
         val ipAddress: String,
         val port: Int,
         val deviceName: String
-    ) {}
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as DeviceData
+
+            if (ipAddress != other.ipAddress) return false
+            return port == other.port
+        }
+
+        override fun hashCode(): Int {
+            var result = ipAddress.hashCode()
+            result = 31 * result + port
+            result = 31 * result + deviceName.hashCode()
+            return result
+        }
+
+    }
 }
