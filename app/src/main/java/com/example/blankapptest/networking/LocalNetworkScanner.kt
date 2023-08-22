@@ -8,48 +8,81 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class LocalNetworkScanner(
     val ctx: Context,
-    val portToScanFor:Int,
-    val passwordSend:String,
-    val passwordReceive:String,
-    val mobileDeviceName:String,
-    val responseTimeOut:Long,
+    private val portToScanFor:Int,
+    private val passwordSend:String,
+    private val passwordReceive:String,
+    private val mobileDeviceName:String,
+    private val responseTimeOut:Long,
     val onPossibleDeviceFound: (DeviceData) -> Unit,
-) : Thread() {
-
-    private lateinit var prefix: String
-
-    private var handler: Handler = Handler(Looper.getMainLooper())
+){
+    private var mainHandler: Handler = Handler(Looper.getMainLooper())
     private val tagForMessage: String = "scan"
+    private val generalScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
+    private val specificScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
 
-    override fun run() {
-        val ip = getLocalIp()
+    public fun startGeneralScan()
+    {
+        generalScanExecutor.execute()
+        {
+            kotlin.run {
+                runGeneralScan()
+            }
+        }
+    }
+
+    public fun startSpecificScan(listOfAddresses:MutableList<String>)
+    {
+        for (address in listOfAddresses)
+            startSpecificScan(address)
+    }
+
+    public fun startSpecificScan(address:String)
+    {
+        specificScanExecutor.execute()
+        {
+            kotlin.run{
+                runSpecificScan(address)
+            }
+        }
+
+    }
+
+    private fun runSpecificScan(address:String)
+    {
+        try {
+            val clientSocket = Socket()
+            clientSocket.connect(InetSocketAddress(address, portToScanFor), 100)
+            if (clientSocket.isConnected) {
+                val executor = Executors.newSingleThreadExecutor()
+                executor.execute(kotlinx.coroutines.Runnable
+                {
+                    kotlin.run {
+                        val deviceData = checkValidityOfConnection(clientSocket)
+                        if (deviceData != null)
+                            possibleDeviceFound(deviceData)
+                    }
+                })
+                executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
+            }
+        } catch (e: Exception) {
+            print(e.toString())
+        }
+    }
+
+    private fun runGeneralScan() {
+        val ip:MutableList<String> = getLocalIp()
         if(ip.isEmpty())
             return
-        prefix = ip[0] + "." + ip[1] + "." + ip[2] + "."
-
         var i = 1
         do {
             try {
-                val clientSocket = Socket()
-                clientSocket.connect(InetSocketAddress(prefix + i.toString(), portToScanFor), 100)
-                if (clientSocket.isConnected) {
-                    //Toast.makeText(ctx, "found possibility on $prefix$i", Toast.LENGTH_SHORT).show() //TODO(remove this)
-                    val executor = Executors.newSingleThreadExecutor()
-                    executor.execute(kotlinx.coroutines.Runnable
-                    {
-                        kotlin.run {
-                            val deviceData = checkValidityOfConnection(clientSocket)
-                            if (deviceData != null)
-                                possibleDeviceFound(deviceData)
-                        }
-                    })
-                    executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
-                }
+                startSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
             } catch (e: Exception) {
                 print(e.toString())
             }
@@ -59,7 +92,7 @@ class LocalNetworkScanner(
 
     private fun possibleDeviceFound(deviceData: DeviceData)
     {
-        handler.post{
+        mainHandler.post{
             kotlin.run {
                 onPossibleDeviceFound(deviceData)
             }

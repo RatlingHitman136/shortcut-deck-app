@@ -2,6 +2,7 @@ package com.example.blankapptest.networking
 
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.delay
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -12,8 +13,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
-    lateinit var hostAddress: String
+class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thread() {
+    private var hostAddress: String = address
     private var handleMessageOuterFunction = handleMessage
     private lateinit var inputStream: InputStream
     private lateinit var outputStream: OutputStream
@@ -24,38 +25,9 @@ class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
 
     private var sendingQueue = LinkedList<ByteArray>()
 
-    private fun write(byteArray: ByteArray){
-        try {
-            outputStream.write(byteArray)
-            outputStream.flush()
-        }catch (ex: IOException){
-            handleMessageOuterFunction(ex.message.toString())
-            ex.printStackTrace()
-        }
-    }
-
-    fun stopAndReconnect(hostAdress:String)
-    {
-        this.hostAddress = hostAdress
-        try {
-            socket.close()
-            executorRead.shutdownNow()
-            executorWrite.shutdownNow()
-            sendingQueue.clear()
-
-            connect()
-            startExchangingMessages()
-        }catch (ex:IOException){
-            handleMessageOuterFunction(ex.message.toString())
-            ex.printStackTrace()
-        }
-    }
-
     override fun run() {
         try {
-            socket = Socket()
             connect()
-            startExchangingMessages()
         }catch (ex:IOException){
             handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
@@ -64,11 +36,23 @@ class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
 
     private fun connect()
     {
+        socket = Socket()
         val ip:String = hostAddress.split(":")[0]
         val port:Int = hostAddress.split(":")[1].toInt()
         socket.connect(InetSocketAddress(ip,port),500)
         inputStream = socket.getInputStream()
         outputStream = socket.getOutputStream()
+        startExchangingMessages()
+    }
+
+    fun close()
+    {
+        socket.shutdownInput()
+        socket.shutdownOutput()
+        socket.close()
+        executorRead.shutdownNow()
+        executorWrite.shutdownNow()
+        sendingQueue.clear()
     }
 
     private fun handleMessage(buffer:ByteArray, finalBytes:Int)
@@ -93,12 +77,11 @@ class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
                 writingProcess()
             }
         })
-
     }
     private fun readingProcess(handler: Handler) {
         val buffer = ByteArray(1024)
         var byte:Int
-        while (socket.isConnected){
+        while (!socket.isClosed){
             try{
                 byte = inputStream.read(buffer)
                 if(byte>0){
@@ -117,7 +100,7 @@ class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
     }
 
     private fun writingProcess() {
-        while (socket.isConnected) {
+        while (!socket.isClosed) {
             if(sendingQueue.isNotEmpty()) {
                 try {
                     val data:ByteArray = sendingQueue.pop()
@@ -130,6 +113,15 @@ class ClientClass(handleMessage: (message:String) -> Unit): Thread() {
         }
     }
 
+    private fun write(byteArray: ByteArray){
+        try {
+            outputStream.write(byteArray)
+            outputStream.flush()
+        }catch (ex: IOException){
+            handleMessageOuterFunction(ex.message.toString())
+            ex.printStackTrace()
+        }
+    }
 
     fun sendMessage(msg: String)
     {

@@ -33,7 +33,7 @@ class PossibleDevicesDropDownAdapter(
         return view
     }
 
-    fun addNewPossibleDevice(newDeviceData:LocalNetworkScanner.DeviceData)
+    fun tryAddNewPossibleDevice(newDeviceData:LocalNetworkScanner.DeviceData)
     {
         if(deviceDataList.contains(newDeviceData))
             return

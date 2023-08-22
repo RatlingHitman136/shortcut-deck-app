@@ -15,12 +15,4 @@ class CustomStaggeredGridLayoutManager(numberOfColumns:Int, orientation:Int):Sta
     override fun canScrollVertically(): Boolean {
         return isVertScrollEnabled && super.canScrollVertically()
     }
-
-//    override fun getSpanSizeLookup(): SpanSizeLookup {
-//        return object : SpanSizeLookup() {
-//            override fun getSpanSize(position: Int): Int {
-//                return 2
-//            }
-//        }
-//    }
 }

@@ -21,7 +21,7 @@ import com.example.blankapptest.shortcutclasses.ShortCutSeekBar
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvMessageBox:TextView
-    private var client: ClientClass =  ClientClass { msg: String -> handleRecievedMessage(msg) }
+    private var client: ClientClass? = null
     private lateinit var gvButtonsHolder:RecyclerView
     private lateinit var buttonsGridAdapter:ButtonsGridAdapter
     private lateinit var sPossibleDevices: Spinner
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             "test device",
             200,
         ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
-        localNetworkScanner.start()
+        localNetworkScanner.startGeneralScan()
 
         //connect()
     }
@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        buttonsGridAdapter.addShortCut(createTestButtons())
     }
 
     private fun createTestButtons() : MutableList<ShortCutBase> {
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
     private fun handleFoundPossibleDeviceConnection(device:LocalNetworkScanner.DeviceData) {
-        possibleDevicesDropDownAdapter.addNewPossibleDevice(device)
+        possibleDevicesDropDownAdapter.tryAddNewPossibleDevice(device)
     }
 
     @SuppressLint("SetTextI18n")
@@ -118,18 +119,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun connect(address:String) {
-        if (!client.isAlive) {
-            client.hostAddress = address
-            client.start()
-        } else
-            client.stopAndReconnect(address)
-
-        buttonsGridAdapter.addShortCut(createTestButtons())
+        client?.close()
+        client = ClientClass(address) {msg:String -> handleRecievedMessage(msg)}
+        client!!.start()
     }
 
 
     private fun send(msg: String) {
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show()
-        client.sendMessage(msg + "\n")
+        client?.sendMessage(msg + "\n")
     }
 }
