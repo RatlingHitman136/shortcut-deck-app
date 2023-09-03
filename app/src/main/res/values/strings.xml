@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Blank APP Test</string>
     <string name="update_text">Send</string>
+        <string name="connection_password">a1b2c3mlnop316</string>
 </resources>

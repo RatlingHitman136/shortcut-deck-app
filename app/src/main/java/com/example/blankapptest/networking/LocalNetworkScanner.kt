@@ -3,6 +3,10 @@ package com.example.blankapptest.networking
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.example.blankapptest.actions.actiontypes.ActionBase
+import com.example.blankapptest.actions.ActionFactory
+import com.example.blankapptest.actions.actiontypes.ActionScanRecieve
+import com.example.blankapptest.actions.actiontypes.ActionScanSend
 import java.lang.Exception
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -22,7 +26,6 @@ class LocalNetworkScanner(
     val onPossibleDeviceFound: (DeviceData) -> Unit,
 ){
     private var mainHandler: Handler = Handler(Looper.getMainLooper())
-    private val tagForMessage: String = "scan"
     private val generalScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
     private val specificScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
 
@@ -64,8 +67,10 @@ class LocalNetworkScanner(
                 {
                     kotlin.run {
                         val deviceData = checkValidityOfConnection(clientSocket)
-                        if (deviceData != null)
+                        if (deviceData != null) {
+                            clientSocket.close()
                             possibleDeviceFound(deviceData)
+                        }
                     }
                 })
                 executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
@@ -103,9 +108,10 @@ class LocalNetworkScanner(
     private fun checkValidityOfConnection(clientSocket:Socket) : DeviceData? {
         val inputStream = clientSocket.getInputStream()
         val outputStream = clientSocket.getOutputStream()
-        val handler = Handler(Looper.getMainLooper())
 
-        val msg = "$tagForMessage/$mobileDeviceName/$passwordSend\n"
+        val actionFactory = ActionFactory()
+        val actionScanSend = ActionScanSend(passwordSend, mobileDeviceName)
+        val msg = actionFactory.getStringFromActionFromClient(actionScanSend)
 
         //send invitation
         val data = msg.encodeToByteArray()
@@ -115,13 +121,16 @@ class LocalNetworkScanner(
         val buffer = ByteArray(1024)
         val byte: Int = inputStream.read(buffer)
         if (byte > 0) {
-            val recievedMsg = String(buffer, 0, byte).split("/") as MutableList<String>
+            val recievedMsg = String(buffer, 0, byte).trim()
             //if recieved msg is valid as reply to invitation
-            if ((recievedMsg.count() == 3) && (recievedMsg[0] == tagForMessage) && (recievedMsg[2] == passwordReceive)) {
+
+            val recievedAction : ActionBase = actionFactory.getActionFromStringFromServer(recievedMsg)
+
+            if (recievedAction is ActionScanRecieve) {
                 return DeviceData(
                     clientSocket.remoteSocketAddress.toString().removePrefix("/"),
                     portToScanFor,
-                    recievedMsg[1]
+                    recievedAction.getDeviceName()
                 )
             }
         }

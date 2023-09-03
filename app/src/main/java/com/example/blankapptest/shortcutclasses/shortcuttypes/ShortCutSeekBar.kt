@@ -1,16 +1,14 @@
-package com.example.blankapptest.shortcutclasses
+package com.example.blankapptest.shortcutclasses.shortcuttypes
 
 import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
 import com.example.blankapptest.R
 
 
 class ShortCutSeekBar(
-    shortCutId:String,
-    sendMessage:(msg:String) -> Unit
-) : ShortCutBase(shortCutId,sendMessage){
+    shortCutId:String
+) : ShortCutBase(shortCutId){
 
     override fun initShortCutViewGroup(viewHolder: ViewHolder) {
         if(viewHolder is SeekBarViewHolder)
@@ -22,14 +20,14 @@ class ShortCutSeekBar(
                 override fun onStartTrackingTouch(seekBar: SeekBar) { }
 
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                        sendMessage("seekbar $shortCutId $progress")
+                    getOnShortCutTriggered()?.invoke("seekbar $shortCutId $progress")
                 }
             }
             seekBarViewHolder.seekBar.setOnSeekBarChangeListener(onSeekBarListener)
         }
     }
 
-    class SeekBarViewHolder(itemView: View) : ShortCutBase.ViewHolder(itemView)
+    class SeekBarViewHolder(itemView: View) : ViewHolder(itemView)
     {
         val seekBar:SeekBar = itemView.findViewById<SeekBar>(R.id.sbShortCutSeekBar)
     }

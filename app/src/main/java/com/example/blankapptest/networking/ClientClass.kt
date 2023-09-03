@@ -2,7 +2,8 @@ package com.example.blankapptest.networking
 
 import android.os.Handler
 import android.os.Looper
-import kotlinx.coroutines.delay
+import com.example.blankapptest.MainActivity
+import com.example.blankapptest.actions.ActionFactory
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -13,9 +14,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thread() {
+class ClientClass(address: String, mainActivity: MainActivity): Thread() {
     private var hostAddress: String = address
-    private var handleMessageOuterFunction = handleMessage
     private lateinit var inputStream: InputStream
     private lateinit var outputStream: OutputStream
     private lateinit var socket: Socket
@@ -25,11 +25,12 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
 
     private var sendingQueue = LinkedList<ByteArray>()
 
+    private val actionFactory:ActionFactory = ActionFactory(mainActivity)
+
     override fun run() {
         try {
             connect()
         }catch (ex:IOException){
-            handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
         }
     }
@@ -58,7 +59,8 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
     private fun handleMessage(buffer:ByteArray, finalBytes:Int)
     {
         val tmpMessage = String(buffer,0,finalBytes)
-        handleMessageOuterFunction(tmpMessage)
+        val actionRecieved = actionFactory.getActionFromStringFromServer(tmpMessage)
+        actionRecieved.executeAction()
     }
 
     private fun startExchangingMessages() {
@@ -79,7 +81,7 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
         })
     }
     private fun readingProcess(handler: Handler) {
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(2048)
         var byte:Int
         while (!socket.isClosed){
             try{
@@ -93,7 +95,6 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
                     }
                 }
             }catch (ex:IOException){
-                handleMessageOuterFunction(ex.message.toString())//TODO
                 ex.printStackTrace()
             }
         }
@@ -106,7 +107,6 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
                     val data:ByteArray = sendingQueue.pop()
                     write(data)
                 } catch (ex: IOException) {
-                    handleMessageOuterFunction(ex.message.toString())//TODO
                     ex.printStackTrace()
                 }
             }
@@ -118,7 +118,6 @@ class ClientClass(address: String,handleMessage: (message:String) -> Unit): Thre
             outputStream.write(byteArray)
             outputStream.flush()
         }catch (ex: IOException){
-            handleMessageOuterFunction(ex.message.toString())
             ex.printStackTrace()
         }
     }

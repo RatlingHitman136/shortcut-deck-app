@@ -2,14 +2,11 @@ package com.example.blankapptest
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.blankapptest.shortcutclasses.ShortCutBase
-import com.example.blankapptest.shortcutclasses.ShortCutButton
-import com.example.blankapptest.shortcutclasses.ShortCutSeekBar
+import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutBase
+import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutButton
+import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutSeekBar
 import java.lang.Exception
 
 
