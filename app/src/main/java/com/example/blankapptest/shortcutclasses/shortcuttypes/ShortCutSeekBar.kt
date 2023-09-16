@@ -20,7 +20,8 @@ class ShortCutSeekBar(
                 override fun onStartTrackingTouch(seekBar: SeekBar) { }
 
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    getOnShortCutTriggered()?.invoke("seekbar $shortCutId $progress")
+                    //getOnShortCutTriggered()?.invoke("seekbar $shortCutId $progress")
+                    //TODO add message sending process
                 }
             }
             seekBarViewHolder.seekBar.setOnSeekBarChangeListener(onSeekBarListener)

@@ -1,16 +1,17 @@
-package com.example.blankapptest
+package com.example.blankapptest.shortcutclasses
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.blankapptest.R
 import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutBase
 import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutButton
 import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutSeekBar
 import java.lang.Exception
 
 
-class ButtonsGridAdapter(
+class ShortCutAdapter(
     context:Context
 ) : RecyclerView.Adapter<ShortCutBase.ViewHolder>() {
 
@@ -18,22 +19,26 @@ class ButtonsGridAdapter(
     private val shortCutList: MutableList<ShortCutBase> = mutableListOf()
 
     override fun getItemViewType(position: Int): Int {
-        when (shortCutList[position]) {
-            is ShortCutButton -> return 1
-            is ShortCutSeekBar -> return 2
+        return when (shortCutList[position]) {
+            is ShortCutButton -> 1
+            is ShortCutSeekBar -> 2
+            else -> 0
         }
-        throw Exception("wrong type")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortCutBase.ViewHolder {
         when (viewType) {
+            0->{
+                val view = inflater.inflate(R.layout.empty_shortcut_layout, parent, false)
+                return ShortCutBase.ViewHolder(view)
+            }
             1 -> {
-                val view = inflater.inflate(R.layout.button_layout, parent, false)
+                val view = inflater.inflate(R.layout.button_shortcut_layout, parent, false)
                 return ShortCutButton.ButtonViewHolder(view)
             }
 
             2 -> {
-                val view = inflater.inflate(R.layout.seekbar_layout, parent, false)
+                val view = inflater.inflate(R.layout.seekbar_shortcut_layout, parent, false)
                 return ShortCutSeekBar.SeekBarViewHolder(view)
             }
         }
@@ -58,5 +63,12 @@ class ButtonsGridAdapter(
         shortCutList.addAll(shortCutCollection)
         for (i in shortCutList.count() - shortCutCollection.count() until shortCutList.count())
             notifyItemInserted(i)
+    }
+
+    fun setShortCutsFromProfile(shortCutProfile: ShortCutProfile)
+    {
+        shortCutList.clear()
+        shortCutList.addAll(shortCutProfile.getShortCuts())
+        notifyDataSetChanged()
     }
 }

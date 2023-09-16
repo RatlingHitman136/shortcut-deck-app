@@ -16,5 +16,5 @@ open class ShortCutBase(val shortCutId:String) {
         this.onShortCutTriggered = onShortCutTriggered
     }
 
-    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
+    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
 }

@@ -1,8 +1,6 @@
 package com.example.blankapptest
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -10,6 +8,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.blankapptest.actions.ActionFactory
+import com.example.blankapptest.actions.actiontypes.ActionProfilesRequestSend
 import com.example.blankapptest.networking.ClientClass
 import com.example.blankapptest.networking.LocalNetworkScanner
 import com.example.blankapptest.shortcutclasses.ShortCutProfileManager
@@ -20,9 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvMessageBox:TextView
     private var client: ClientClass? = null
 
-    private lateinit var gvButtonsHolder:RecyclerView
-    private lateinit var buttonsGridAdapter:ButtonsGridAdapter
-
+    private lateinit var rvButtonsHolder:RecyclerView
     private lateinit var sPossibleDevices: Spinner
     private lateinit var possibleDevicesDropDownAdapter: PossibleDevicesDropDownAdapter
 
@@ -32,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initAllViews()
-        shortCutProfileManager = ShortCutProfileManager()
+        shortCutProfileManager = ShortCutProfileManager(this, rvButtonsHolder)
         val localNetworkScanner = LocalNetworkScanner(
             this,
             8888,
@@ -44,13 +42,6 @@ class MainActivity : AppCompatActivity() {
         localNetworkScanner.startGeneralScan()
 
     }
-
-    private fun getAllViewReferences() {
-        tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
-        gvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
-        sPossibleDevices = findViewById<Spinner>(R.id.sPossibleDevices)
-    }
-
     private fun initAllViews() {
         getAllViewReferences()
 
@@ -58,11 +49,7 @@ class MainActivity : AppCompatActivity() {
         val numberOfColumns: Int = 4
         val manager = CustomStaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL)
         manager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-        gvButtonsHolder.layoutManager = manager
-
-        //setting up grid adapter
-        buttonsGridAdapter = ButtonsGridAdapter(this)
-        gvButtonsHolder.adapter = buttonsGridAdapter
+        rvButtonsHolder.layoutManager = manager
 
         //setting up device adapter
         possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(this)
@@ -78,24 +65,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+    private fun getAllViewReferences() {
+        tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
+        rvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
+        sPossibleDevices = findViewById<Spinner>(R.id.sPossibleDevices)
+    }
     private fun handleFoundPossibleDeviceConnection(device:LocalNetworkScanner.DeviceData) {
         possibleDevicesDropDownAdapter.tryAddNewPossibleDevice(device)
     }
-
     private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
         connect(deviceData.ipAddress)
     }
-
-
     private fun connect(address:String) {
         client?.close()
-        client = ClientClass(address)
+        shortCutProfileManager.clearProfiles()
+        client = ClientClass(address, this)
         client!!.start()
+        client?.sendMessage(ActionFactory(this).getStringFromActionFromClient(ActionProfilesRequestSend()))
     }
-
-
-    private fun send(msg: String) {
-        client?.sendMessage(msg)
+    fun getShortCutProfileManager():ShortCutProfileManager
+    {
+        return shortCutProfileManager
     }
 }

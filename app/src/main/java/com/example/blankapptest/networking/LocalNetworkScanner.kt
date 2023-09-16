@@ -3,6 +3,7 @@ package com.example.blankapptest.networking
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.example.blankapptest.MainActivity
 import com.example.blankapptest.actions.actiontypes.ActionBase
 import com.example.blankapptest.actions.ActionFactory
 import com.example.blankapptest.actions.actiontypes.ActionScanRecieve
@@ -17,7 +18,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class LocalNetworkScanner(
-    val ctx: Context,
+    //val ctx: Context,
+    private val mainActivity:MainActivity,
     private val portToScanFor:Int,
     private val passwordSend:String,
     private val passwordReceive:String,
@@ -60,7 +62,7 @@ class LocalNetworkScanner(
     {
         try {
             val clientSocket = Socket()
-            clientSocket.connect(InetSocketAddress(address, portToScanFor), 100)
+            clientSocket.connect(InetSocketAddress(address, portToScanFor), 200)
             if (clientSocket.isConnected) {
                 val executor = Executors.newSingleThreadExecutor()
                 executor.execute(kotlinx.coroutines.Runnable
@@ -82,6 +84,7 @@ class LocalNetworkScanner(
 
     private fun runGeneralScan() {
         val ip:MutableList<String> = getLocalIp()
+        //startSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + ".136") //TODO(for quick test)
         if(ip.isEmpty())
             return
         var i = 1
@@ -109,7 +112,7 @@ class LocalNetworkScanner(
         val inputStream = clientSocket.getInputStream()
         val outputStream = clientSocket.getOutputStream()
 
-        val actionFactory = ActionFactory()
+        val actionFactory = ActionFactory(mainActivity)
         val actionScanSend = ActionScanSend(passwordSend, mobileDeviceName)
         val msg = actionFactory.getStringFromActionFromClient(actionScanSend)
 

@@ -1,19 +1,37 @@
 package com.example.blankapptest.shortcutclasses
 
-class ShortCutProfileManager {
+import android.content.Context
+import androidx.recyclerview.widget.RecyclerView
+
+class ShortCutProfileManager(ctx: Context,
+                             private val shortCutHolder:RecyclerView)  {
+
     private val profiles : MutableList<ShortCutProfile> = mutableListOf()
-    private val curProfileID:String = ""
-    fun addNewProfile(newProfile:ShortCutProfile){
+    private var curProfileID:String = ""
+    private var shortCutAdapter: ShortCutAdapter = ShortCutAdapter(ctx)
+
+    init {
+        shortCutHolder.adapter = shortCutAdapter
+    }
+
+
+    fun addNewProfile(newProfile:ShortCutProfile) {
         profiles.add(newProfile)
-        if(profiles.count() == 1)
-        {
+        newProfile.setOnShortCutTriggeredFromProfileManager { msg: String -> onShortCutTriggered(msg) }
+        if (profiles.count() == 1)
             setCurrentProfile(profiles[0].getProfileID())
-        }
+
     }
 
     fun setCurrentProfile(profileID:String)
     {
-        //some things with ui stuff
+        for (profile in profiles) {
+            if (profile.getProfileID() == profileID) {
+                shortCutAdapter.setShortCutsFromProfile(profile)
+                curProfileID = profileID
+            }
+            return
+        }
     }
 
     fun clearProfiles()

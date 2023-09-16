@@ -4,7 +4,7 @@ import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutBase
 
 class ShortCutProfile(
     private val profileID:String,
-    private var shortCutsList: MutableList<ShortCutBase>
+    private val shortCutsList: MutableList<ShortCutBase>
 ) {
     private var shortCutTriggeredProfileManager: ((msg:String) -> Unit)? = null
 
@@ -19,9 +19,17 @@ class ShortCutProfile(
         return profileID
     }
 
+    fun getShortCuts():MutableList<ShortCutBase>{
+        return shortCutsList
+    }
 
-    fun shortCutTriggered(msg:String)
+
+    private fun shortCutTriggered(msg:String)
     {
         shortCutTriggeredProfileManager?.invoke(msg)
+    }
+
+    fun setOnShortCutTriggeredFromProfileManager( function:(msg:String) -> Unit) {
+        shortCutTriggeredProfileManager = function
     }
 }

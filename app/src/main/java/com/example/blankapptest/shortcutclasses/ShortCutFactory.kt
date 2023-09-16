@@ -16,11 +16,11 @@ class ShortCutFactory {
         val shortCuts : MutableList<ShortCutBase> = mutableListOf()
         for (data in dataOfShortCuts) {
             val splitted = data.split(SECOND_LEVEL_SPLIT_CHARACTER);
-            if (splitted.count() < 2)
-                shortCuts.add(ShortCutBase(""))
+            if (splitted.isEmpty())
+                continue
             when (splitted[0]) {
                 SHORT_CUT_BUTTON_TAG -> {
-                    shortCuts.add(ShortCutButton(splitted[2]))
+                    shortCuts.add(ShortCutButton(splitted[1]))
                 }
                 SHORT_CUT_EMPTY_TAG -> {
                     shortCuts.add(ShortCutBase(""))

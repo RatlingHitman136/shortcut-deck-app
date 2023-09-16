@@ -5,8 +5,8 @@
                                                    android:layout_height="wrap_content">
 
     <ImageButton
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
+            android:layout_width="@dimen/shortcut_button_size"
+            android:layout_height="@dimen/shortcut_button_size"
             app:srcCompat="@android:drawable/ic_media_play"
             android:id="@+id/ibShortCut"
             app:layout_constraintStart_toStartOf="parent"
