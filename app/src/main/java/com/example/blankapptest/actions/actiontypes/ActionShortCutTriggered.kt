@@ -1,5 +1,6 @@
 package com.example.blankapptest.actions.actiontypes
 
+import com.example.blankapptest.actions.ActionFactory
 import com.example.blankapptest.networking.ClientClass
 
 class ActionShortCutTriggered(
@@ -11,6 +12,12 @@ class ActionShortCutTriggered(
         super.executeAction()
         if(clientClassToNotify == null)
             return
-        clientClassToNotify.sendMessage(msg)
+        val actionFactory = ActionFactory()
+        clientClassToNotify.sendMessage(actionFactory.getStringFromActionFromClient(this))
+    }
+
+    fun getMSGFromShortCut():String
+    {
+        return msg
     }
 }
