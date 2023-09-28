@@ -5,19 +5,24 @@ import com.example.blankapptest.networking.ClientClass
 
 class ActionShortCutTriggered(
     private val clientClassToNotify: ClientClass?,
+    private val profileID:String,
     private val msg:String
 ) : ActionBase() {
 
     override fun executeAction() {
         super.executeAction()
-        if(clientClassToNotify == null)
+        if (clientClassToNotify == null)
             return
         val actionFactory = ActionFactory()
         clientClassToNotify.sendMessage(actionFactory.getStringFromActionFromClient(this))
     }
 
-    fun getMSGFromShortCut():String
-    {
+    fun getMSGFromShortCut(): String {
         return msg
     }
+
+    fun getProfileID(): String {
+        return profileID
+    }
+
 }

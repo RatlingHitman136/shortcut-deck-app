@@ -51,7 +51,7 @@ class ShortCutProfileManager(ctx: Context,
 
     private fun onShortCutTriggered(msg:String)
     {
-        val action = ActionShortCutTriggered(client,msg)
+        val action = ActionShortCutTriggered(client,curProfileID,msg)
         action.executeAction()
     }
 }

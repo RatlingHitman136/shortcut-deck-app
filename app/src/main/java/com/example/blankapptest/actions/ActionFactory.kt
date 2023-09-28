@@ -47,7 +47,7 @@ class ActionFactory(private val mainActivity: MainActivity? = null) {
                 actionString+= ACTION_PROFILES_REQUEST_TAG
             }
             is ActionShortCutTriggered -> {
-                actionString = ACTION_SHORTCUT_TRIGGERED + FIRST_LEVEL_SPLIT_CHARACTER + action.getMSGFromShortCut()
+                actionString = ACTION_SHORTCUT_TRIGGERED + FIRST_LEVEL_SPLIT_CHARACTER + action.getProfileID() + FIRST_LEVEL_SPLIT_CHARACTER + action.getMSGFromShortCut()
             }
         }
 
