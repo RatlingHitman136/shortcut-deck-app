@@ -8,15 +8,10 @@ class ShortCutButton(
     shortCutId:String,
     //TODO(img var must be implemented here)
 ): ShortCutBase(shortCutId) {
-    private var onShortCutPressed: ((msg:String) -> Unit)? = null
-    fun setOnShortCutPressedFunction(onShortCutPressed: (msg: String) -> Unit) {
-        this.onShortCutPressed = onShortCutPressed
-    }
-
     override fun initShortCutViewGroup(viewHolder: ViewHolder) {
         if (viewHolder is ButtonViewHolder) {
             val buttonViewHolder: ButtonViewHolder = viewHolder as ButtonViewHolder
-            buttonViewHolder.button.setOnClickListener { _ -> onShortCutPressed?.invoke(shortCutId) } //TODO(change to shorter and parsable message)
+            buttonViewHolder.button.setOnClickListener { _ -> onShortCutTriggered.invoke(shortCutId) }
         }
     }
 

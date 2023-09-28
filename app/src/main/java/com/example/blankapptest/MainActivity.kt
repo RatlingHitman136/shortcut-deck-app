@@ -78,8 +78,8 @@ class MainActivity : AppCompatActivity() {
     }
     private fun connect(address:String) {
         client?.close()
-        shortCutProfileManager.clearProfiles()
         client = ClientClass(address, this)
+        shortCutProfileManager.notifyNewClientConnected(client)
         client!!.start()
         client?.sendMessage(ActionFactory(this).getStringFromActionFromClient(ActionProfilesRequestSend()))
     }

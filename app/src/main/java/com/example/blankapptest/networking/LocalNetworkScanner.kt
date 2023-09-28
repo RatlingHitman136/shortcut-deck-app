@@ -1,12 +1,11 @@
 package com.example.blankapptest.networking
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.example.blankapptest.MainActivity
 import com.example.blankapptest.actions.actiontypes.ActionBase
 import com.example.blankapptest.actions.ActionFactory
-import com.example.blankapptest.actions.actiontypes.ActionScanRecieve
+import com.example.blankapptest.actions.actiontypes.ActionScanReceive
 import com.example.blankapptest.actions.actiontypes.ActionScanSend
 import java.lang.Exception
 import java.net.DatagramSocket
@@ -129,7 +128,7 @@ class LocalNetworkScanner(
 
             val recievedAction : ActionBase = actionFactory.getActionFromStringFromServer(recievedMsg)
 
-            if (recievedAction is ActionScanRecieve) {
+            if (recievedAction is ActionScanReceive) {
                 return DeviceData(
                     clientSocket.remoteSocketAddress.toString().removePrefix("/"),
                     portToScanFor,

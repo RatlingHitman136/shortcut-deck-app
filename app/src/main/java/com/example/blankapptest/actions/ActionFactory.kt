@@ -19,7 +19,7 @@ class ActionFactory(private val mainActivity: MainActivity) {
         when (actionStringList[0]) {
             ACTION_SCAN_TAG -> {
                 if (actionStringList.count() == 3)
-                    return ActionScanRecieve(actionStringList[1], actionStringList[2])
+                    return ActionScanReceive(actionStringList[1], actionStringList[2])
             }
 
             ACTION_RECIEVED_PROFILE_TAG -> {

@@ -2,13 +2,16 @@ package com.example.blankapptest.shortcutclasses
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
+import com.example.blankapptest.actions.actiontypes.ActionShortCutTriggered
+import com.example.blankapptest.networking.ClientClass
 
 class ShortCutProfileManager(ctx: Context,
-                             private val shortCutHolder:RecyclerView)  {
+                             shortCutHolder:RecyclerView)  {
 
     private val profiles : MutableList<ShortCutProfile> = mutableListOf()
     private var curProfileID:String = ""
     private var shortCutAdapter: ShortCutAdapter = ShortCutAdapter(ctx)
+    private var client:ClientClass? = null
 
     init {
         shortCutHolder.adapter = shortCutAdapter
@@ -34,14 +37,21 @@ class ShortCutProfileManager(ctx: Context,
         }
     }
 
-    fun clearProfiles()
+    private fun clearProfiles()
     {
         //some things with ui stuff
     }
 
-
-    fun onShortCutTriggered(msg:String)
+    fun notifyNewClientConnected(client: ClientClass?)
     {
-        //some things with client class
+        clearProfiles()
+        this.client = client
+    }
+
+
+    private fun onShortCutTriggered(msg:String)
+    {
+        val action = ActionShortCutTriggered(client,msg)
+        action.executeAction()
     }
 }
