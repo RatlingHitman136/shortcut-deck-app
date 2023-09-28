@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     private fun initAllViews() {
-        getAllViewReferences()
+        assignAllViewReferences()
 
         //setting up grid manager
         val numberOfColumns: Int = 4
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun getAllViewReferences() {
+    private fun assignAllViewReferences() {
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
         rvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
         sPossibleDevices = findViewById<Spinner>(R.id.sPossibleDevices)
