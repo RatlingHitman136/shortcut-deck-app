@@ -39,7 +39,7 @@ class ShortCutProfileManager(ctx: Context,
 
     private fun clearProfiles()
     {
-        //some things with ui stuff
+        //TODO(do profile clearing after disconnection from server)
     }
 
     fun notifyNewClientConnected(client: ClientClass?)
