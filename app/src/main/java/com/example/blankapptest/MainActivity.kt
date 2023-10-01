@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
             "test device",
             200,
         ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
-        localNetworkScanner.startGeneralScan()
+        localNetworkScanner.startGeneralScan(8)
 
     }
     private fun initAllViews() {
