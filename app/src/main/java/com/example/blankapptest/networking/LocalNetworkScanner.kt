@@ -20,7 +20,6 @@ import kotlin.math.min
 const val MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN = 10
 
 class LocalNetworkScanner(
-    //val ctx: Context,
     private val mainActivity:MainActivity,
     private val portToScanFor:Int,
     private val passwordSend:String,
