@@ -8,6 +8,7 @@ import android.widget.Spinner
 import com.example.blankapptest.networking.LocalNetworkScanner
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.max
 
 class PossibleDevicesManager(
     private val mainActivity: MainActivity,
@@ -79,7 +80,6 @@ class PossibleDevicesManager(
     }
     private fun handleFoundPossibleDeviceConnections(newFoundedPossibleDeviceData: MutableList<LocalNetworkScanner.DeviceData>) {
         val oldPossibleDevicesList = possibleDevicesList.toMutableList()
-
         possibleDevicesList = newFoundedPossibleDeviceData
         possibleDevicesDropDownAdapter.updatePossibleDevicesList(newFoundedPossibleDeviceData)
 
@@ -92,6 +92,11 @@ class PossibleDevicesManager(
                 } else {
                     handleSelectedNothing()
                 }
+            }
+            else
+            {
+                val newIndexOfSelectedDevice = possibleDevicesList.indexOf(oldSelectedDevice)
+                sPossibleDevices.setSelection(newIndexOfSelectedDevice,true)
             }
         }
     }
