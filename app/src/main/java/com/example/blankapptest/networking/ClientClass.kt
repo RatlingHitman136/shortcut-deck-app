@@ -50,12 +50,14 @@ class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: Main
 
     fun close()
     {
-        socket.shutdownInput()
-        socket.shutdownOutput()
-        socket.close()
-        executorRead.shutdownNow()
-        executorWrite.shutdownNow()
-        sendingQueue.clear()
+        val executor = Executors.newSingleThreadExecutor()
+        executor.execute{
+            socket.close()
+            executorRead.shutdownNow()
+            executorWrite.shutdownNow()
+            sendingQueue.clear()
+        }
+        executor.shutdown()
     }
 
     private fun handleMessage(buffer:ByteArray, finalBytes:Int)
