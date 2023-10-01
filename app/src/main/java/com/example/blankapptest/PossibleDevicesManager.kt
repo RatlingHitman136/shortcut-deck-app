@@ -25,6 +25,7 @@ class PossibleDevicesManager(
         "test device",
         200,
         200,
+        16,
     ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
 
     init {
@@ -42,7 +43,7 @@ class PossibleDevicesManager(
     }
 
     fun startScanningForNewDevices() {
-        localNetworkScanner.startGeneralScan(16)
+        localNetworkScanner.startGeneralScan()
         //startUpdatingPossibleDevices()
     }
     fun startUpdatingPossibleDevices() {
@@ -52,7 +53,7 @@ class PossibleDevicesManager(
         updatingExecutor.execute {
             while (isUpdatingPossibleDevices) {
                 Thread.sleep(timeBetweenUpdateOfPossibleDevices)
-                localNetworkScanner.startGeneralScan(8)
+                localNetworkScanner.startGeneralScan()
             }
         }
     }
