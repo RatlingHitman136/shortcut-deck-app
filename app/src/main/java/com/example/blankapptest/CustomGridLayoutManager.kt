@@ -1,7 +1,5 @@
 package com.example.blankapptest
 
-import android.content.Context
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 class CustomStaggeredGridLayoutManager(numberOfColumns:Int, orientation:Int):StaggeredGridLayoutManager(numberOfColumns,orientation) {
