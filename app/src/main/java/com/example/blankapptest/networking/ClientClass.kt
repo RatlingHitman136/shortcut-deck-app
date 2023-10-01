@@ -1,7 +1,9 @@
 package com.example.blankapptest.networking
 
+import android.content.ContentValues.TAG
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.example.blankapptest.MainActivity
 import com.example.blankapptest.actions.ActionFactory
 import com.example.blankapptest.actions.actiontypes.ActionProfilesRequestSend
@@ -33,7 +35,7 @@ class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: Main
         try {
             connect()
         }catch (ex:IOException){
-            ex.printStackTrace()
+            Log.e(TAG,Log.getStackTraceString(ex));
         }
     }
 
@@ -97,7 +99,7 @@ class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: Main
                     }
                 }
             }catch (ex:IOException){
-                ex.printStackTrace()
+                Log.e(TAG,Log.getStackTraceString(ex))
             }
         }
     }
@@ -109,7 +111,7 @@ class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: Main
                     val data:ByteArray = sendingQueue.pop()
                     write(data)
                 } catch (ex: IOException) {
-                    ex.printStackTrace()
+                    Log.e(TAG,Log.getStackTraceString(ex))
                 }
             }
         }
@@ -120,7 +122,7 @@ class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: Main
             outputStream.write(byteArray)
             outputStream.flush()
         }catch (ex: IOException){
-            ex.printStackTrace()
+            Log.e(TAG,Log.getStackTraceString(ex));
         }
     }
 

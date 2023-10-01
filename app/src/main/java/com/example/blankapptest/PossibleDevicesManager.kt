@@ -1,5 +1,7 @@
 package com.example.blankapptest
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -10,10 +12,10 @@ import java.util.concurrent.Executors
 
 class PossibleDevicesManager(
     private val mainActivity: MainActivity,
-    sPossibleDevices: Spinner,
+    private val sPossibleDevices: Spinner,
 ) {
     private val possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(mainActivity)
-    private val possibleDevicesList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
+    private var possibleDevicesList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
     private var isUpdatingPossibleDevices:Boolean = false
     private var updatingExecutor:ExecutorService = Executors.newSingleThreadExecutor()
     private val timeBetweenUpdateOfPossibleDevices:Long = 2000 //TODO(must be changed)
@@ -26,7 +28,7 @@ class PossibleDevicesManager(
         200,
         200,
         16,
-    ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
+    ) { possibleDevices: MutableList<LocalNetworkScanner.DeviceData> -> handleFoundPossibleDeviceConnection(possibleDevices) }
 
     init {
         sPossibleDevices.adapter = possibleDevicesDropDownAdapter
@@ -44,9 +46,9 @@ class PossibleDevicesManager(
 
     fun startScanningForNewDevices() {
         localNetworkScanner.startGeneralScan()
-        //startUpdatingPossibleDevices()
+        startUpdatingPossibleDevices()
     }
-    fun startUpdatingPossibleDevices() {
+    private fun startUpdatingPossibleDevices() {
         if (isUpdatingPossibleDevices)
             return
         isUpdatingPossibleDevices = true
@@ -57,7 +59,7 @@ class PossibleDevicesManager(
             }
         }
     }
-    fun stopUpdatingPossibleDevices() {
+    private fun stopUpdatingPossibleDevices() {
         if(!isUpdatingPossibleDevices)
             return
     }
@@ -70,14 +72,43 @@ class PossibleDevicesManager(
 
             Thread.sleep(timeBetweenUpdateOfPossibleDevices)
         } catch (e: Exception) {
-            println(e.message)
+            Log.e(TAG,Log.getStackTraceString(e));
         }
     }
-    private fun handleFoundPossibleDeviceConnection(possibleDeviceData: LocalNetworkScanner.DeviceData) {
-        if(!possibleDevicesList.contains(possibleDeviceData)) {
-            possibleDevicesList.add(possibleDeviceData)
+    private fun handleFoundPossibleDeviceConnection(newFoundedPossibleDevicesData: MutableList<LocalNetworkScanner.DeviceData>) {
+        val newPossibleDevices = mutableListOf<LocalNetworkScanner.DeviceData>()
+        var isDevicesListModified = false
+        for (oldDevice in possibleDevicesList) {
+            //TODO("can be optimized")
+            if (newFoundedPossibleDevicesData.contains(oldDevice)) {
+                newPossibleDevices.add(oldDevice)
+                newFoundedPossibleDevicesData.remove(oldDevice)
+            }
+            else
+                isDevicesListModified = true
+        }
+
+        for (newDevice in newFoundedPossibleDevicesData) {
+            newPossibleDevices.add(newDevice)
+            isDevicesListModified = true
+        }
+
+        var newSelectedIndex:Int = 0
+
+        if(sPossibleDevices.selectedItemId != AdapterView.INVALID_ROW_ID && isDevicesListModified) {
+            val selectedOldDeviceId = sPossibleDevices.selectedItemId.toInt()
+            val selectedOldDevice = possibleDevicesList[selectedOldDeviceId]
+            if (newPossibleDevices.contains(selectedOldDevice))
+            {
+                newSelectedIndex = newPossibleDevices.indexOf(selectedOldDevice)
+                sPossibleDevices.setSelection(newSelectedIndex)
+            }
+        }
+        possibleDevicesList = newPossibleDevices
+        if(isDevicesListModified) {
             possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
         }
+        sPossibleDevices.setSelection(newSelectedIndex)
     }
     private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
         mainActivity.connect(deviceData)

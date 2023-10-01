@@ -1,7 +1,9 @@
 package com.example.blankapptest.networking
 
+import android.content.ContentValues.TAG
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.example.blankapptest.MainActivity
 import com.example.blankapptest.actions.actiontypes.ActionBase
 import com.example.blankapptest.actions.ActionFactory
@@ -28,7 +30,7 @@ class LocalNetworkScanner(
     private val socketConnectionTimeOut: Int,
     private val serverResponseTimeOut:Long,
     numOfThreads: Int,
-    val onPossibleDeviceFound: (DeviceData) -> Unit,
+    val onPossibleDevicesFound: (MutableList<DeviceData>) -> Unit,
 ){
     private var mainHandler: Handler = Handler(Looper.getMainLooper())
     private val scanExecutorPool = Executors.newFixedThreadPool(min(numOfThreads, MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN))
@@ -38,10 +40,7 @@ class LocalNetworkScanner(
         generalScanExecutor.execute()
         {
             val possibleDevices = scanLocalNetworkForPossibleDevices()
-            for (device in possibleDevices)
-            {
-                possibleDeviceFound(device)
-            }
+            possibleDevicesFound(possibleDevices)
         }
         generalScanExecutor.shutdown()
     }
@@ -165,14 +164,14 @@ class LocalNetworkScanner(
                 }
                 catch (e : Exception)
                 {
-                    e.printStackTrace()
+                    Log.e(TAG,Log.getStackTraceString(e));
                     if(!clientSocket.isClosed)
                         clientSocket.close()
                 }
             }
         }
         catch (e:Exception) {
-            e.printStackTrace()
+            //Log.e(TAG,Log.getStackTraceString(e));
         }
 
         return deviceData
@@ -208,10 +207,11 @@ class LocalNetworkScanner(
         }
         return null
     }
-    private fun possibleDeviceFound(deviceData: DeviceData) {
+    private fun possibleDevicesFound(devices:MutableList<DeviceData>)
+    {
         mainHandler.post{
             kotlin.run {
-                onPossibleDeviceFound(deviceData)
+                onPossibleDevicesFound(devices)
             }
         }
     }

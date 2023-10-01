@@ -34,9 +34,7 @@ class PossibleDevicesDropDownAdapter(
     }
 
     fun updatePossibleDevicesList(possibleDevicesList: MutableList<LocalNetworkScanner.DeviceData>) {
-        if(deviceDataList != possibleDevicesList) {
-            deviceDataList = possibleDevicesList
-            notifyDataSetChanged()
-        }
+        deviceDataList = possibleDevicesList
+        notifyDataSetChanged()
     }
 }

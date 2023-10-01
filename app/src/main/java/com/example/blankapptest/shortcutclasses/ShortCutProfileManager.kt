@@ -6,7 +6,7 @@ import com.example.blankapptest.actions.actiontypes.ActionShortCutTriggered
 import com.example.blankapptest.networking.ClientClass
 
 class ShortCutProfileManager(ctx: Context,
-                             shortCutHolder:RecyclerView)  {
+                             private val shortCutHolder:RecyclerView)  {
 
     private val profiles : MutableList<ShortCutProfile> = mutableListOf()
     private var curProfileID:String = ""
@@ -41,6 +41,7 @@ class ShortCutProfileManager(ctx: Context,
     {
         profiles.clear()
         shortCutAdapter.clearAllShortCuts()
+        shortCutHolder.invalidate()
     }
 
     fun notifyNewClientConnected(client: ClientClass?)
