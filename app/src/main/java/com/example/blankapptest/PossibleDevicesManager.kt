@@ -52,7 +52,8 @@ class PossibleDevicesManager(
         isUpdatingPossibleDevices = true
         updatingExecutor.execute {
             while (isUpdatingPossibleDevices) {
-                //localNetworkScanner.startGeneralScan(8)
+                Thread.sleep(timeBetweenUpdateOfPossibleDevices)
+                localNetworkScanner.startGeneralScan(8)
             }
         }
     }
