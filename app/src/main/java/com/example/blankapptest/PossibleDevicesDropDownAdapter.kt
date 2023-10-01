@@ -9,10 +9,10 @@ import android.widget.TextView
 import com.example.blankapptest.networking.LocalNetworkScanner
 
 class PossibleDevicesDropDownAdapter(
-    val context: Context
+    context: Context
 ):BaseAdapter() {
-    val deviceDataList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
-    val inflater:LayoutInflater = LayoutInflater.from(context)
+    private var deviceDataList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
+    private val inflater:LayoutInflater = LayoutInflater.from(context)
     override fun getCount(): Int {
         return deviceDataList.count()
     }
@@ -33,11 +33,10 @@ class PossibleDevicesDropDownAdapter(
         return view
     }
 
-    fun tryAddNewPossibleDevice(newDeviceData:LocalNetworkScanner.DeviceData)
-    {
-        if(deviceDataList.contains(newDeviceData))
-            return
-        deviceDataList.add(newDeviceData)
-        notifyDataSetChanged()
+    fun updatePossibleDevicesList(possibleDevicesList: MutableList<LocalNetworkScanner.DeviceData>) {
+        if(deviceDataList != possibleDevicesList) {
+            deviceDataList = possibleDevicesList
+            notifyDataSetChanged()
+        }
     }
 }

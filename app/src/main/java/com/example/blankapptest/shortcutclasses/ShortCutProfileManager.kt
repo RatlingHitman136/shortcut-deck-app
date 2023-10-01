@@ -37,9 +37,10 @@ class ShortCutProfileManager(ctx: Context,
         }
     }
 
-    private fun clearProfiles()
+    fun clearProfiles()
     {
-        //TODO(do profile clearing after disconnection from server)
+        profiles.clear()
+        shortCutAdapter.clearAllShortCuts()
     }
 
     fun notifyNewClientConnected(client: ClientClass?)

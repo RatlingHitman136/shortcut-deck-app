@@ -17,76 +17,57 @@ import com.example.blankapptest.shortcutclasses.ShortCutProfileManager
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var tvMessageBox:TextView
+    private lateinit var tvMessageBox: TextView //TODO(only for logging and testing)
     private var client: ClientClass? = null
 
-    private lateinit var rvButtonsHolder:RecyclerView
+    private lateinit var rvButtonsHolder: RecyclerView
     private lateinit var sPossibleDevices: Spinner
-    private lateinit var possibleDevicesDropDownAdapter: PossibleDevicesDropDownAdapter
 
     private lateinit var shortCutProfileManager: ShortCutProfileManager
+    private lateinit var possibleDevicesManager: PossibleDevicesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initAllViews()
         shortCutProfileManager = ShortCutProfileManager(this, rvButtonsHolder)
-        val localNetworkScanner = LocalNetworkScanner(
-            this,
-            8888,
-            R.string.connection_password.toString(),
-            R.string.connection_password.toString().reversed(),
-            "test device",
-            200,
-        ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
-        localNetworkScanner.startGeneralScan(8)
-
+        possibleDevicesManager = PossibleDevicesManager(this,
+                                                        sPossibleDevices,
+                                                        1000)
+        possibleDevicesManager.startScanningForNewDevices()
     }
+
     private fun initAllViews() {
         assignAllViewReferences()
 
         //setting up grid manager
+        //TODO(make it not hardcoded)
         val numberOfColumns: Int = 4
         val manager = CustomStaggeredGridLayoutManager(numberOfColumns, StaggeredGridLayoutManager.VERTICAL)
         manager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         rvButtonsHolder.layoutManager = manager
-
-        //setting up device adapter
-        possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(this)
-        sPossibleDevices.adapter = possibleDevicesDropDownAdapter
-
-        sPossibleDevices.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
-                handleSelectedNewDevice(possibleDevicesDropDownAdapter.getItem(position) as LocalNetworkScanner.DeviceData)
-            }
-
-            override fun onNothingSelected(parentView: AdapterView<*>?) {
-                // TODO your code here
-            }
-        }
     }
+
     private fun assignAllViewReferences() {
         tvMessageBox = findViewById<TextView>(R.id.tvMessageBox)
         rvButtonsHolder = findViewById<RecyclerView>(R.id.rvButtonHolder)
         sPossibleDevices = findViewById<Spinner>(R.id.sPossibleDevices)
     }
-    private fun handleFoundPossibleDeviceConnection(device:LocalNetworkScanner.DeviceData) {
-        possibleDevicesDropDownAdapter.tryAddNewPossibleDevice(device)
-    }
-    private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
-        connect(deviceData.ipAddress)
-    }
-    private fun connect(address:String) {
+
+    fun connect(deviceData: LocalNetworkScanner.DeviceData) {
         client?.close()
-        client = ClientClass(address, this)
+        client = ClientClass(deviceData, this)
         shortCutProfileManager.notifyNewClientConnected(client)
         client!!.start()
         client?.sendMessage(ActionFactory(this).getStringFromActionFromClient(ActionProfilesRequestSend()))
     }
-    fun getShortCutProfileManager():ShortCutProfileManager
+    fun disconnect()
     {
-        return shortCutProfileManager
+        client?.close()
+        shortCutProfileManager.clearProfiles()
     }
 
-
+    fun getShortCutProfileManager(): ShortCutProfileManager {
+        return shortCutProfileManager
+    }
 }

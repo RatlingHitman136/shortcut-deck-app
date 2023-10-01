@@ -15,8 +15,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class ClientClass(address: String, mainActivity: MainActivity): Thread() {
-    private var hostAddress: String = address
+class ClientClass(deviceData: LocalNetworkScanner.DeviceData, mainActivity: MainActivity): Thread() {
+    private var hostAddress: String = deviceData.ipAddress
+    private var hostPort:Int = deviceData.port
     private lateinit var inputStream: InputStream
     private lateinit var outputStream: OutputStream
     private lateinit var socket: Socket
@@ -39,8 +40,8 @@ class ClientClass(address: String, mainActivity: MainActivity): Thread() {
     private fun connect()
     {
         socket = Socket()
-        val ip:String = hostAddress.split(":")[0]
-        val port:Int = hostAddress.split(":")[1].toInt()
+        val ip:String = hostAddress
+        val port:Int = hostPort
         socket.connect(InetSocketAddress(ip,port),500)
         inputStream = socket.getInputStream()
         outputStream = socket.getOutputStream()

@@ -1,5 +1,6 @@
 package com.example.blankapptest.shortcutclasses
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -54,21 +55,18 @@ class ShortCutAdapter(
         shortCutList[position].initShortCutViewGroup(holder)
     }
 
-    fun addShortCut(shortCutBase: ShortCutBase) {
-        shortCutList.add(shortCutBase)
-        notifyItemInserted(shortCutList.count() - 1)
-    }
-
-    fun addShortCut(shortCutCollection: Collection<ShortCutBase>) {
-        shortCutList.addAll(shortCutCollection)
-        for (i in shortCutList.count() - shortCutCollection.count() until shortCutList.count())
-            notifyItemInserted(i)
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     fun setShortCutsFromProfile(shortCutProfile: ShortCutProfile)
     {
         shortCutList.clear()
         shortCutList.addAll(shortCutProfile.getShortCuts())
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun clearAllShortCuts()
+    {
+        shortCutList.clear()
         notifyDataSetChanged()
     }
 }
