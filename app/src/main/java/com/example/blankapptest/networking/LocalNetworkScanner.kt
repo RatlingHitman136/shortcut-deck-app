@@ -37,7 +37,7 @@ class LocalNetworkScanner(
         val generalScanExecutor = Executors.newSingleThreadExecutor()
         generalScanExecutor.execute()
         {
-            val possibleDevices = scanAllLocalIpsForPossibleDevices()
+            val possibleDevices = scanLocalNetworkForPossibleDevices()
             for (device in possibleDevices)
             {
                 possibleDeviceFound(device)
@@ -118,17 +118,22 @@ class LocalNetworkScanner(
 //    }
 
 
-    private fun scanAllLocalIpsForPossibleDevices():MutableList<DeviceData> {
-        val foundedDevices = mutableListOf<DeviceData>()
+    private fun scanLocalNetworkForPossibleDevices():MutableList<DeviceData> {
         val ip:MutableList<String> = getLocalIp()
         if(ip.isEmpty())
-            return foundedDevices
-
-        val addressBase = ip[0] + "." + ip[1] + "." + ip[2] + "."
+            return mutableListOf()
+        val allPossibleIpAddresses:MutableList<String> = mutableListOf()
+        for (i in 1..254)
+            allPossibleIpAddresses.add(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
+        return scanIpsForPossibleDevices(allPossibleIpAddresses)
+    }
+    private fun scanIpsForPossibleDevices(addresses:MutableList<String>):MutableList<DeviceData> {
+        val foundedDevices = mutableListOf<DeviceData>()
         val scanFutureTasks:MutableList<Future<DeviceData?>> = mutableListOf()
-        for (i in 1..254) {
+        for (address in addresses)
+        {
             val scanTask = Callable<DeviceData?> {
-                return@Callable tryValidatePossibleDeviceByIpAddress(addressBase+i.toString())
+                return@Callable tryValidatePossibleDeviceByIpAddress(address)
             }
             scanFutureTasks.add(scanExecutorPool.submit(scanTask))
         }
