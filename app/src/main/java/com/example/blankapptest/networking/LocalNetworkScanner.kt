@@ -35,43 +35,12 @@ class LocalNetworkScanner(
     private lateinit var generalScanExecutorThreadPool:ExecutorService
 
     fun startGeneralScan(numOfThreads:Int = 1) {
-        val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,Runtime.getRuntime().availableProcessors())
-        generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
-        val lenForOneScan: Int = 256 / numOfThreads
-        var counter:Int = 1
-        while (counter < 255) {
-            val scanTask = Runnable {runGeneralScan(ipEndFrom = counter, ipEndTo = min(counter + lenForOneScan, 255))}
-            generalScanExecutorThreadPool.execute(scanTask)
-            counter += lenForOneScan
+        val generalScanExecutor = Executors.newSingleThreadExecutor()
+        generalScanExecutor.execute()
+        {
+            runGeneralScan(numOfThreads)
         }
-
-//        var scanTask = Runnable {runGeneralScan(1,30)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(30, 60)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(60, 90)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(90, 120)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(120, 150)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(150, 180)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(180, 210)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(210, 240)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-//        scanTask = Runnable {runGeneralScan(240, 255)}
-//        generalScanExecutorThreadPool.execute(scanTask)
-
-
-        generalScanExecutorThreadPool.shutdown()
-    }
-
-    fun startSpecificScan(listOfAddresses:MutableList<String>)
-    {
-        for (address in listOfAddresses)
-            startSpecificScan(address)
+        generalScanExecutor.shutdown()
     }
 
     fun startSpecificScan(address:String)
@@ -83,6 +52,27 @@ class LocalNetworkScanner(
             }
         }
 
+    }
+
+    private fun runGeneralScan(numOfThreads: Int) {
+        val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,numOfThreads)
+        generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
+
+        val ip:MutableList<String> = getLocalIp()
+        if(ip.isEmpty())
+            return
+
+        for (i in 1..255)
+        {
+            try{
+                val scanTask = Runnable {runSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())}
+                generalScanExecutorThreadPool.execute(scanTask)
+            } catch (e: Exception) {
+                print(e.toString())
+            }
+        }
+
+        generalScanExecutorThreadPool.shutdown()
     }
 
     private fun runSpecificScan(address:String)
@@ -108,36 +98,6 @@ class LocalNetworkScanner(
             print(e.toString())
         }
     }
-
-    private fun runGeneralScan(ipEndFrom:Int=1, ipEndTo:Int=255) {
-        val ip:MutableList<String> = getLocalIp()
-        if(ip.isEmpty())
-            return
-        for (i in ipEndFrom..ipEndTo+1)
-        {
-            try {
-                mainHandler.post{
-                    kotlin.run {
-                        mainActivity.tvMessageBox.text =
-                            mainActivity.tvMessageBox.text.toString() + (ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString() + "\n")
-                    }
-                }
-                runSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
-            } catch (e: Exception) {
-                print(e.toString())
-            }
-        }
-    }
-
-    private fun possibleDeviceFound(deviceData: DeviceData)
-    {
-        mainHandler.post{
-            kotlin.run {
-                onPossibleDeviceFound(deviceData)
-            }
-        }
-    }
-
 
     private fun checkValidityOfConnection(clientSocket:Socket) : DeviceData? {
         val inputStream = clientSocket.getInputStream()
@@ -169,6 +129,15 @@ class LocalNetworkScanner(
             }
         }
         return null
+    }
+
+    private fun possibleDeviceFound(deviceData: DeviceData)
+    {
+        mainHandler.post{
+            kotlin.run {
+                onPossibleDeviceFound(deviceData)
+            }
+        }
     }
 
     private fun getLocalIp(): MutableList<String> {
