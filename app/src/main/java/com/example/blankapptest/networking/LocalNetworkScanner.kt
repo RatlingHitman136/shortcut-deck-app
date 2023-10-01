@@ -83,7 +83,7 @@ class LocalNetworkScanner(
 
     private fun runGeneralScan() {
         val ip:MutableList<String> = getLocalIp()
-        //startSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + ".136") //TODO(for quick test)
+        startSpecificScan("192.168.50.136") //TODO(for quick test)
         if(ip.isEmpty())
             return
         var i = 1
