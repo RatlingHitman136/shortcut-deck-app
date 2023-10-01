@@ -38,12 +38,33 @@ class LocalNetworkScanner(
         val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,Runtime.getRuntime().availableProcessors())
         generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
         val lenForOneScan: Int = 256 / numOfThreads
-        var counter = 1
+        var counter:Int = 1
         while (counter < 255) {
-            val scanTask = Runnable {runGeneralScan(counter, min(counter + lenForOneScan, 255))}
+            val scanTask = Runnable {runGeneralScan(ipEndFrom = counter, ipEndTo = min(counter + lenForOneScan, 255))}
             generalScanExecutorThreadPool.execute(scanTask)
-            counter+=lenForOneScan
+            counter += lenForOneScan
         }
+
+//        var scanTask = Runnable {runGeneralScan(1,30)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(30, 60)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(60, 90)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(90, 120)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(120, 150)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(150, 180)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(180, 210)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(210, 240)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+//        scanTask = Runnable {runGeneralScan(240, 255)}
+//        generalScanExecutorThreadPool.execute(scanTask)
+
+
         generalScanExecutorThreadPool.shutdown()
     }
 
@@ -92,15 +113,20 @@ class LocalNetworkScanner(
         val ip:MutableList<String> = getLocalIp()
         if(ip.isEmpty())
             return
-        var i = ipEndFrom
-        do {
+        for (i in ipEndFrom..ipEndTo+1)
+        {
             try {
-                startSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
+                mainHandler.post{
+                    kotlin.run {
+                        mainActivity.tvMessageBox.text =
+                            mainActivity.tvMessageBox.text.toString() + (ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString() + "\n")
+                    }
+                }
+                runSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
             } catch (e: Exception) {
                 print(e.toString())
             }
-            i++
-        } while (i < ipEndTo)
+        }
     }
 
     private fun possibleDeviceFound(deviceData: DeviceData)

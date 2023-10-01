@@ -17,7 +17,7 @@ import com.example.blankapptest.shortcutclasses.ShortCutProfileManager
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvMessageBox:TextView
+    lateinit var tvMessageBox:TextView
     private var client: ClientClass? = null
 
     private lateinit var rvButtonsHolder:RecyclerView
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
             "test device",
             200,
         ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
-        localNetworkScanner.startGeneralScan(1)
+        localNetworkScanner.startGeneralScan(8)
 
     }
     private fun initAllViews() {
@@ -87,4 +87,6 @@ class MainActivity : AppCompatActivity() {
     {
         return shortCutProfileManager
     }
+
+
 }
