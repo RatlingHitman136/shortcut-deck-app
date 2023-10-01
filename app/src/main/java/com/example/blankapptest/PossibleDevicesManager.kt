@@ -66,6 +66,8 @@ class PossibleDevicesManager(
         if(!isUpdatingPossibleDevices)
             return
     }
+
+    //TODO(make checking of already founded devices more efficient)
     private fun updatePossibleDevices() {
         try {
 //            val tmpCopy = localNetworkScanner.updateConnectionWithSpecifiedDevices(possibleDevicesList)
@@ -78,6 +80,8 @@ class PossibleDevicesManager(
             println(e.message)
         }
     }
+
+    //TODO(move checking selected device on connection status to client class)
     private fun handleFoundPossibleDeviceConnections(newFoundedPossibleDeviceData: MutableList<LocalNetworkScanner.DeviceData>) {
         val oldPossibleDevicesList = possibleDevicesList.toMutableList()
         possibleDevicesList = newFoundedPossibleDeviceData
