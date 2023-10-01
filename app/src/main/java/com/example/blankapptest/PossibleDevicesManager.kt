@@ -24,6 +24,7 @@ class PossibleDevicesManager(
         R.string.connection_password.toString().reversed(),
         "test device",
         200,
+        200,
     ) { possibleDevices: LocalNetworkScanner.DeviceData -> handleFoundPossibleDeviceConnection(possibleDevices) }
 
     init {
@@ -41,8 +42,8 @@ class PossibleDevicesManager(
     }
 
     fun startScanningForNewDevices() {
-        localNetworkScanner.startGeneralScan(8)
-        startUpdatingPossibleDevices()
+        localNetworkScanner.startGeneralScan(16)
+        //startUpdatingPossibleDevices()
     }
     fun startUpdatingPossibleDevices() {
         if (isUpdatingPossibleDevices)
@@ -61,10 +62,10 @@ class PossibleDevicesManager(
     }
     private fun updatePossibleDevices() {
         try {
-            val tmpCopy = localNetworkScanner.updateConnectionWithSpecifiedDevices(possibleDevicesList)
-            possibleDevicesList.clear()
-            possibleDevicesList.addAll(tmpCopy)
-            possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+//            val tmpCopy = localNetworkScanner.updateConnectionWithSpecifiedDevices(possibleDevicesList)
+//            possibleDevicesList.clear()
+//            possibleDevicesList.addAll(tmpCopy)
+//            possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
 
             Thread.sleep(timeBetweenUpdateOfPossibleDevices)
         } catch (e: Exception) {

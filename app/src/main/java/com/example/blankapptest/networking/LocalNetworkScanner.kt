@@ -7,16 +7,17 @@ import com.example.blankapptest.actions.actiontypes.ActionBase
 import com.example.blankapptest.actions.ActionFactory
 import com.example.blankapptest.actions.actiontypes.ActionScanReceive
 import com.example.blankapptest.actions.actiontypes.ActionScanSend
-import java.lang.Exception
 import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.Callable
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.Future
+import kotlin.Exception
 import kotlin.math.min
 
-const val MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN = 10
+const val MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN = 32
 
 class LocalNetworkScanner(
     private val mainActivity:MainActivity,
@@ -24,7 +25,8 @@ class LocalNetworkScanner(
     private val passwordSend:String,
     private val passwordReceive:String,
     private val mobileDeviceName:String,
-    private val responseTimeOut:Long,
+    private val socketConnectionTimeOut: Int,
+    private val serverResponseTimeOut:Long,
     val onPossibleDeviceFound: (DeviceData) -> Unit,
 ){
     private var mainHandler: Handler = Handler(Looper.getMainLooper())
@@ -33,81 +35,85 @@ class LocalNetworkScanner(
         val generalScanExecutor = Executors.newSingleThreadExecutor()
         generalScanExecutor.execute()
         {
-            executeGeneralScan(numOfThreads)
+            val possibleDevices = scanAllLocalIpsForPossibleDevices(numOfThreads)
+            for (device in possibleDevices)
+            {
+                possibleDeviceFound(device)
+            }
         }
         generalScanExecutor.shutdown()
     }
-    fun updateConnectionWithSpecifiedDevices(devices:MutableList<DeviceData>):MutableList<DeviceData> {
-        val newListOfDevices:MutableList<DeviceData> = mutableListOf()
-        for (device in devices)
-        {
-            try {
-                val clientSocket = Socket()
-                clientSocket.connect(InetSocketAddress(device.ipAddress, device.port), 200)
-                if(clientSocket.isConnected) //TODO(maybe can be optimized better)
-                {
-                    val executor = Executors.newSingleThreadExecutor()
-                    executor.execute(kotlinx.coroutines.Runnable
-                    {
-                        kotlin.run {
-                            val newDeviceData = checkValidityOfConnection(clientSocket)
-                            if (newDeviceData != null) {
-                                clientSocket.close()
-                                newListOfDevices.add(newDeviceData)
-                            }
-                        }
-                    })
-                    executor.awaitTermination(400, TimeUnit.MILLISECONDS)
-                }
-            }
-            catch (e: Exception) {
-                print(e.toString())
-            }
-        }
-        return newListOfDevices
-    }
-    private fun executeGeneralScan(numOfThreads: Int) {
-        val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,numOfThreads)
-        val generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
-
-        val ip:MutableList<String> = getLocalIp()
-        if(ip.isEmpty())
-            return
-
-        for (i in 1..255)
-        {
-            try{
-                val scanTask = Runnable {executeSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())}
-                generalScanExecutorThreadPool.execute(scanTask)
-            } catch (e: Exception) {
-                print(e.toString())
-            }
-        }
-
-        generalScanExecutorThreadPool.shutdown()
-    }
-    private fun executeSpecificScan(address:String) {
-        try {
-            val clientSocket = Socket()
-            clientSocket.connect(InetSocketAddress(address, portToScanFor), 200)
-            if (clientSocket.isConnected) {
-                val executor = Executors.newSingleThreadExecutor()
-                executor.execute(kotlinx.coroutines.Runnable
-                {
-                    kotlin.run {
-                        val deviceData = checkValidityOfConnection(clientSocket)
-                        if (deviceData != null) {
-                            clientSocket.close()
-                            possibleDeviceFound(deviceData)
-                        }
-                    }
-                })
-                executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
-            }
-        } catch (e: Exception) {
-            print(e.toString())
-        }
-    }
+//    fun updateConnectionWithSpecifiedDevices(devices:MutableList<DeviceData>):MutableList<DeviceData> {
+//        val newListOfDevices:MutableList<DeviceData> = mutableListOf()
+//        for (device in devices)
+//        {
+//            try {
+//                val clientSocket = Socket()
+//                clientSocket.connect(InetSocketAddress(device.ipAddress, device.port), 200)
+//                if(clientSocket.isConnected) //TODO(maybe can be optimized better)
+//                {
+//                    val executor = Executors.newSingleThreadExecutor()
+//                    executor.execute(kotlinx.coroutines.Runnable
+//                    {
+//                        kotlin.run {
+//                            val newDeviceData = checkValidityOfConnection(clientSocket)
+//                            if (newDeviceData != null) {
+//                                clientSocket.close()
+//                                newListOfDevices.add(newDeviceData)
+//                            }
+//                        }
+//                    })
+//                    executor.awaitTermination(400, TimeUnit.MILLISECONDS)
+//                }
+//            }
+//            catch (e: Exception) {
+//                print(e.toString())
+//            }
+//        }
+//        return newListOfDevices
+//    }
+//    private fun executeGeneralScan(numOfThreads: Int) {
+//        val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,numOfThreads)
+//        val generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
+//
+//        val ip:MutableList<String> = getLocalIp()
+//        if(ip.isEmpty())
+//            return
+//
+//        for (i in 1..255)
+//        {
+//            try{
+//                val scanTask = Runnable {executeSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())}
+//                generalScanExecutorThreadPool.execute(scanTask)
+//            } catch (e: Exception) {
+//                print(e.toString())
+//            }
+//        }
+//
+//        generalScanExecutorThreadPool.shutdown()
+//    }
+//    private fun executeSpecificScan(address:String) {
+//        try {
+//            val clientSocket = Socket()
+//            clientSocket.connect(InetSocketAddress(address, portToScanFor), 200)
+//            if (clientSocket.isConnected) {
+//                val executor = Executors.newSingleThreadExecutor()
+//                executor.execute(kotlinx.coroutines.Runnable
+//                {
+//                    kotlin.run {
+//                        val deviceData = checkValidityOfConnection(clientSocket)
+//                        if (deviceData != null) {
+//                            clientSocket.close()
+//                            possibleDeviceFound(deviceData)
+//                        }
+//                    }
+//                })
+//                executor.awaitTermination(responseTimeOut, TimeUnit.MILLISECONDS)
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
     private fun checkValidityOfConnection(clientSocket:Socket) : DeviceData? {
         val inputStream = clientSocket.getInputStream()
         val outputStream = clientSocket.getOutputStream()
@@ -155,6 +161,63 @@ class LocalNetworkScanner(
         }
     }
 
+    private fun scanAllLocalIpsForPossibleDevices(numOfThreads: Int):MutableList<DeviceData>
+    {
+        val foundedDevices = mutableListOf<DeviceData>()
+
+        val ip:MutableList<String> = getLocalIp()
+        if(ip.isEmpty())
+            return foundedDevices
+
+        val scanExecutorPool = Executors.newFixedThreadPool(min(numOfThreads, MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN))
+        val addressBase = ip[0] + "." + ip[1] + "." + ip[2] + "."
+
+        val scanFutureTasks:MutableList<Future<DeviceData?>> = mutableListOf()
+        for (i in 1..254) {
+            val scanTask = Callable<DeviceData?> {
+                var deviceData:DeviceData? = null
+                val clientSocket = Socket()
+                try {
+                    clientSocket.connect(
+                        InetSocketAddress(addressBase + i.toString(), portToScanFor),
+                        socketConnectionTimeOut
+                    )
+                    if (clientSocket.isConnected) {
+                        try {
+                            val disconnectionExecutor = Executors.newSingleThreadExecutor()
+                            disconnectionExecutor.execute(kotlinx.coroutines.Runnable
+                            {
+                                Thread.sleep(serverResponseTimeOut)
+                                clientSocket.close()
+                            })
+
+                            deviceData = checkValidityOfConnection(clientSocket)
+                        }
+                        catch (e : Exception)
+                        {
+                            e.printStackTrace()
+                            if(!clientSocket.isClosed)
+                                clientSocket.close()
+                        }
+                    }
+                }
+                catch (e:Exception) {
+                    e.printStackTrace()
+                }
+
+                return@Callable deviceData
+            }
+            scanFutureTasks.add(scanExecutorPool.submit(scanTask))
+        }
+
+        for (futureTask in scanFutureTasks) {
+            val res = futureTask.get()
+            if(res!=null)
+                foundedDevices.add(res)
+        }
+
+        return foundedDevices
+    }
 
     data class DeviceData(
         val ipAddress: String,
