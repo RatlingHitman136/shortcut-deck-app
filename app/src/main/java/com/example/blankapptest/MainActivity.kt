@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         shortCutProfileManager = ShortCutProfileManager(this, rvButtonsHolder)
         possibleDevicesManager = PossibleDevicesManager(this,
                                                         sPossibleDevices,
-                                                        1000)
+                                                        5000)
         possibleDevicesManager.startScanningForNewDevices()
     }
 

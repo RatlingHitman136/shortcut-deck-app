@@ -52,7 +52,7 @@ class PossibleDevicesManager(
         isUpdatingPossibleDevices = true
         updatingExecutor.execute {
             while (isUpdatingPossibleDevices) {
-                updatePossibleDevices()
+                //localNetworkScanner.startGeneralScan(8)
             }
         }
     }
@@ -76,8 +76,10 @@ class PossibleDevicesManager(
     }
 
     private fun handleFoundPossibleDeviceConnection(possibleDeviceData: LocalNetworkScanner.DeviceData) {
-        possibleDevicesList.add(possibleDeviceData)
-        possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+        if(!possibleDevicesList.contains(possibleDeviceData)) {
+            possibleDevicesList.add(possibleDeviceData)
+            possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+        }
     }
 
     private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
