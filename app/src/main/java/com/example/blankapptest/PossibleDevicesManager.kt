@@ -11,12 +11,12 @@ import java.util.concurrent.Executors
 class PossibleDevicesManager(
     private val mainActivity: MainActivity,
     sPossibleDevices: Spinner,
-    private val timeBetweenUpdateOfPossibleDevices:Long,
 ) {
     private val possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(mainActivity)
     private val possibleDevicesList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
     private var isUpdatingPossibleDevices:Boolean = false
     private var updatingExecutor:ExecutorService = Executors.newSingleThreadExecutor()
+    private val timeBetweenUpdateOfPossibleDevices:Long = 2000 //TODO(must be changed)
     private val localNetworkScanner = LocalNetworkScanner(
         mainActivity,
         8888,
@@ -40,12 +40,10 @@ class PossibleDevicesManager(
         }
     }
 
-    fun startScanningForNewDevices()
-    {
+    fun startScanningForNewDevices() {
         localNetworkScanner.startGeneralScan(8)
         startUpdatingPossibleDevices()
     }
-
     fun startUpdatingPossibleDevices() {
         if (isUpdatingPossibleDevices)
             return
@@ -57,12 +55,10 @@ class PossibleDevicesManager(
             }
         }
     }
-
     fun stopUpdatingPossibleDevices() {
         if(!isUpdatingPossibleDevices)
             return
     }
-
     private fun updatePossibleDevices() {
         try {
             val tmpCopy = localNetworkScanner.updateConnectionWithSpecifiedDevices(possibleDevicesList)
@@ -75,20 +71,16 @@ class PossibleDevicesManager(
             println(e.message)
         }
     }
-
     private fun handleFoundPossibleDeviceConnection(possibleDeviceData: LocalNetworkScanner.DeviceData) {
         if(!possibleDevicesList.contains(possibleDeviceData)) {
             possibleDevicesList.add(possibleDeviceData)
             possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
         }
     }
-
     private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
         mainActivity.connect(deviceData)
     }
-    private fun handleSelectedNothing()
-    {
+    private fun handleSelectedNothing() {
         mainActivity.disconnect()
     }
-
 }
