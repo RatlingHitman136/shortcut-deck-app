@@ -3,13 +3,16 @@ package com.example.blankapptest.shortcutclasses
 import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutBase
 import com.example.blankapptest.shortcutclasses.shortcuttypes.ShortCutButton
 
+const val SECOND_LEVEL_SPLIT_CHARACTER : String = ":";
+const val THIRD_LEVEL_SPLIT_CHARACTER : String = " ";
+
+const val SHORT_CUT_BUTTON_TAG : String = "b";
+const val SHORT_CUT_EMPTY_TAG : String = "e";
+//TODO(move all consts to one place)
+
 class ShortCutProfileFactory {
 
-     private val SECOND_LEVEL_SPLIT_CHARACTER : String = ":";
-     private val THIRD_LEVEL_SPLIT_CHARACTER : String = " ";
 
-     private val SHORT_CUT_BUTTON_TAG : String = "b";
-     private val SHORT_CUT_EMPTY_TAG : String = "e";
 
     fun profileFromStringsFromServer(profileID:String, dataOfShortCuts:List<String>):ShortCutProfile
     {

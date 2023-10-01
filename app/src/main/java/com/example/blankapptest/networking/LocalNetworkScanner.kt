@@ -15,6 +15,9 @@ import java.net.Socket
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
+
+const val MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN = 10
 
 class LocalNetworkScanner(
     //val ctx: Context,
@@ -27,26 +30,30 @@ class LocalNetworkScanner(
     val onPossibleDeviceFound: (DeviceData) -> Unit,
 ){
     private var mainHandler: Handler = Handler(Looper.getMainLooper())
-    private val generalScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
     private val specificScanExecutor:ExecutorService = Executors.newSingleThreadExecutor()
 
-    public fun startGeneralScan()
-    {
-        generalScanExecutor.execute()
-        {
-            kotlin.run {
-                runGeneralScan()
-            }
+    private lateinit var generalScanExecutorThreadPool:ExecutorService
+
+    fun startGeneralScan(numOfThreads:Int = 1) {
+        val maxThreadCount:Int = min(MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN,Runtime.getRuntime().availableProcessors())
+        generalScanExecutorThreadPool = Executors.newFixedThreadPool(maxThreadCount)
+        val lenForOneScan: Int = 256 / numOfThreads
+        var counter = 1
+        while (counter < 255) {
+            val scanTask = Runnable {runGeneralScan(counter, min(counter + lenForOneScan, 255))}
+            generalScanExecutorThreadPool.execute(scanTask)
+            counter+=lenForOneScan
         }
+        generalScanExecutorThreadPool.shutdown()
     }
 
-    public fun startSpecificScan(listOfAddresses:MutableList<String>)
+    fun startSpecificScan(listOfAddresses:MutableList<String>)
     {
         for (address in listOfAddresses)
             startSpecificScan(address)
     }
 
-    public fun startSpecificScan(address:String)
+    fun startSpecificScan(address:String)
     {
         specificScanExecutor.execute()
         {
@@ -81,12 +88,11 @@ class LocalNetworkScanner(
         }
     }
 
-    private fun runGeneralScan() {
+    private fun runGeneralScan(ipEndFrom:Int=1, ipEndTo:Int=255) {
         val ip:MutableList<String> = getLocalIp()
-        startSpecificScan("192.168.50.136") //TODO(for quick test)
         if(ip.isEmpty())
             return
-        var i = 1
+        var i = ipEndFrom
         do {
             try {
                 startSpecificScan(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
@@ -94,7 +100,7 @@ class LocalNetworkScanner(
                 print(e.toString())
             }
             i++
-        } while (i < 255)
+        } while (i < ipEndTo)
     }
 
     private fun possibleDeviceFound(deviceData: DeviceData)
