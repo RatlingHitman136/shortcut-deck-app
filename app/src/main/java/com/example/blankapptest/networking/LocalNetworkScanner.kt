@@ -50,17 +50,7 @@ class LocalNetworkScanner(
         generalScanExecutor.shutdown()
     }
 
-
-    private fun scanLocalNetworkForPossibleDevices():MutableList<DeviceData> {
-        val ip:MutableList<String> = getLocalIp()
-        if(ip.isEmpty())
-            return mutableListOf()
-        val allPossibleIpAddresses:MutableList<String> = mutableListOf()
-        for (i in 1..254)
-            allPossibleIpAddresses.add(ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString())
-        return scanIpsForPossibleDevices(allPossibleIpAddresses)
-    }
-    private fun scanLocalNetworkForPossibleDevicesExceptOf(devices:MutableList<DeviceData>):MutableList<DeviceData>{
+    private fun scanLocalNetworkForPossibleDevices(devicesNotToScan:MutableList<DeviceData> = mutableListOf()):MutableList<DeviceData>{
         val ip:MutableList<String> = getLocalIp()
         if(ip.isEmpty())
             return mutableListOf()
@@ -68,7 +58,7 @@ class LocalNetworkScanner(
         for (i in 1..254) {
             val ipAddress = ip[0] + "." + ip[1] + "." + ip[2] + "." + i.toString()
             var isSkipped = false
-            devices.forEach() {
+            devicesNotToScan.forEach() {
                 isSkipped = it.ipAddress == ipAddress || isSkipped
             }
             if (!isSkipped)
