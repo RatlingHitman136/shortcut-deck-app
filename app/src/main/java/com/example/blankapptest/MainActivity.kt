@@ -17,7 +17,7 @@ import com.example.blankapptest.shortcutclasses.ShortCutProfileManager
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvMessageBox: TextView //TODO(only for logging and testing)
+    lateinit var tvMessageBox: TextView //TODO(only for logging and testing)
     private var client: ClientClass? = null
 
     private lateinit var rvButtonsHolder: RecyclerView
