@@ -33,7 +33,7 @@ class LocalNetworkScanner(
     private var mainHandler: Handler = Handler(Looper.getMainLooper())
     private val scanExecutorPool = Executors.newFixedThreadPool(min(numOfThreads, MAX_POSSIBLE_THREAD_COUNT_FOR_GENERAL_SCAN))
 
-    fun startGeneralScan() {
+    fun startGeneralScan(devicesNotToScan:MutableList<DeviceData> = mutableListOf()) {
         val generalScanExecutor = Executors.newSingleThreadExecutor()
         generalScanExecutor.execute()
         {
@@ -44,7 +44,7 @@ class LocalNetworkScanner(
                     mainActivity.tvMessageBox.text = (ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3] )
                 }
             }
-            val possibleDevices = scanLocalNetworkForPossibleDevices()
+            val possibleDevices = scanLocalNetworkForPossibleDevices(devicesNotToScan)
             possibleDevicesFound(possibleDevices)
         }
         generalScanExecutor.shutdown()
