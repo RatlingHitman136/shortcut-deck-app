@@ -1,6 +1,5 @@
 package com.example.blankapptest
 
-import android.media.midi.MidiDevice
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.INVALID_ROW_ID
@@ -8,7 +7,6 @@ import android.widget.Spinner
 import com.example.blankapptest.networking.LocalNetworkScanner
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.max
 
 class PossibleDevicesManager(
     private val mainActivity: MainActivity,

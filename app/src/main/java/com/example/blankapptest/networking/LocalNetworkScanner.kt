@@ -39,9 +39,17 @@ class LocalNetworkScanner(
         {
             //TODO(remove this tmp logging of ip)
             val ip = getLocalIp()
-            mainHandler.post{
+            mainHandler.post {
                 kotlin.run {
-                    mainActivity.tvMessageBox.text = (ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3] )
+                    mainActivity.tvMessageBox.text = (buildString {
+                        append(ip[0])
+                        append(".")
+                        append(ip[1])
+                        append(".")
+                        append(ip[2])
+                        append(".")
+                        append(ip[3])
+                    })
                 }
             }
             val possibleDevices = scanLocalNetworkForPossibleDevices(devicesNotToScan)
@@ -110,7 +118,7 @@ class LocalNetworkScanner(
             }
         }
         catch (e:Exception) {
-
+            e.printStackTrace()
         }
 
         return deviceData
