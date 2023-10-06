@@ -12,10 +12,10 @@ class PossibleDevicesManager(
     private val mainActivity: MainActivity,
     private val sPossibleDevices: Spinner,
 ) {
-    private val possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(mainActivity)
+    var possibleDevicesList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
+        private set
 
-    private var possibleDevicesList:MutableList<LocalNetworkScanner.DeviceData> = mutableListOf()
-
+    private val possibleDevicesDropDownAdapter = PossibleDevicesDropDownAdapter(mainActivity,this)
 
     private var isUpdatingPossibleDevices:Boolean = false
     private lateinit var updatingExecutor:ExecutorService
@@ -94,17 +94,17 @@ class PossibleDevicesManager(
             val oldSelectedDevice = oldPossibleDevicesList[sPossibleDevices.selectedItemId.toInt()]
             possibleDevicesList.remove(oldSelectedDevice)
             possibleDevicesList.add(0, oldSelectedDevice)
-            possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+            possibleDevicesDropDownAdapter.notifyDataSetChanged()
             sPossibleDevices.setSelection(0, true)
         }
         else
-            possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+            possibleDevicesDropDownAdapter.notifyDataSetChanged()
     }
 
     private fun handleSelectedNewDevice(deviceData: LocalNetworkScanner.DeviceData) {
         possibleDevicesList.remove(deviceData)
         possibleDevicesList.add(0,deviceData)
-        possibleDevicesDropDownAdapter.updatePossibleDevicesList(possibleDevicesList)
+        possibleDevicesDropDownAdapter.notifyDataSetChanged()
         sPossibleDevices.setSelection(0,true)
         mainActivity.connect(deviceData)
     }
