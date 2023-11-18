@@ -17,13 +17,21 @@ class ShortCutProfileManager(ctx: Context,
         shortCutHolder.adapter = shortCutAdapter
     }
 
-
-    fun addNewProfile(newProfile:ShortCutProfile) {
-        profiles.add(newProfile)
+    fun addNewRecievedProfile(newProfile:ShortCutProfile) {
         newProfile.setOnShortCutTriggeredFromProfileManager { msg: String -> onShortCutTriggered(msg) }
-        if (profiles.count() == 1)
-            setCurrentProfile(profiles[0].getProfileID())
 
+        val index = getProfileIndexByID(newProfile.getProfileID())
+        if(index != -1)
+        {
+            profiles[index] = newProfile
+            if(newProfile.getProfileID() == curProfileID)
+                setCurrentProfile(curProfileID)
+        }
+        else {
+            profiles.add(newProfile)
+            if (profiles.count() == 1)
+                setCurrentProfile(profiles[0].getProfileID())
+        }
     }
 
     fun setCurrentProfile(profileID:String)
@@ -55,4 +63,23 @@ class ShortCutProfileManager(ctx: Context,
         val action = ActionShortCutTriggered(client,curProfileID,msg)
         action.executeAction()
     }
+
+    /** Finds the index of profile from profiles by ID
+     *  @param id
+     *  @return index of profile in profiles and -1 if no profile with such id
+     */
+    private fun getProfileIndexByID(id: String) : Int
+    {
+        var index = -1;
+        profiles.forEach { x: ShortCutProfile ->
+            run {
+                if(x.getProfileID() == id)
+                {
+                    index = profiles.indexOf(x)
+                }
+            }
+        }
+        return index
+    }
+
 }

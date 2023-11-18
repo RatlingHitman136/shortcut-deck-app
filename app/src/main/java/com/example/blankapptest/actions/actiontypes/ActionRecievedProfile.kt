@@ -11,6 +11,6 @@ class ActionRecievedProfile(private val mainActivity: MainActivity,
         super.executeAction()
         val factory:ShortCutProfileFactory = ShortCutProfileFactory()
         val profile:ShortCutProfile = factory.profileFromStringsFromServer(profileID, profileData)
-        mainActivity.getShortCutProfileManager().addNewProfile(profile)
+        mainActivity.getShortCutProfileManager().addNewRecievedProfile(profile)
     }
 }
